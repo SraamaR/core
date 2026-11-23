@@ -20,10 +20,6 @@
 #include <sal/config.h>
 #include <sal/log.hxx>
 
-#ifdef MACOSX
-#include <osx/saldata.hxx>
-#include <osx/salinst.h>
-#endif
 #include <font/LogicalFontInstance.hxx>
 #include <impglyphitem.hxx>
 #include <quartz/CoreTextFont.hxx>

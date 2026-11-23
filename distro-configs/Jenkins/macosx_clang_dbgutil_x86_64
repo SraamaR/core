@@ -1,3 +1,0 @@
-INCLUDE:Jenkins/macosx_clang_dbgutil
---host=x86_64-apple-darwin
---build=x86_64-apple-darwin

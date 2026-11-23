@@ -21,9 +21,7 @@ $(eval $(call gb_Library_Library,vcl))
 
 $(eval $(call gb_Library_set_componentfile,vcl,vcl/vcl.common,services))
 
-ifeq ($(OS),MACOSX)
-$(eval $(call gb_Library_add_componentimpl,vcl,macosx))
-else ifeq ($(OS),WNT)
+ifeq ($(OS),WNT)
 $(eval $(call gb_Library_add_componentimpl,vcl,windows))
 else ifeq ($(OS),ANDROID)
 $(eval $(call gb_Library_add_componentimpl,vcl,android))
@@ -841,20 +839,6 @@ $(eval $(call gb_Library_use_system_darwin_frameworks,vcl,\
 ))
 endif
 
-
-ifeq ($(OS),MACOSX)
-$(eval $(call gb_Library_add_objcxxobjects,vcl,\
-    vcl/quartz/cgutils \
-    $(if $(filter SKIA,$(BUILD_TYPE)), \
-        vcl/skia/quartz/salbmp \
-    ) \
-))
-$(eval $(call gb_Library_use_system_darwin_frameworks,vcl,\
-    Cocoa \
-    CoreFoundation \
-    Metal \
-))
-endif
 
 
 ifeq ($(OS),WNT)

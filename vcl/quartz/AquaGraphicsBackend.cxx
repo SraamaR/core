@@ -36,9 +36,6 @@
 
 #include <fontsubset.hxx>
 #include <quartz/salbmp.h>
-#ifdef MACOSX
-#include <quartz/salgdi.h>
-#endif
 #include <quartz/utils.h>
 #ifdef IOS
 #include <ios/iosinst.hxx>
@@ -248,23 +245,11 @@ tools::Long AquaGraphicsBackend::GetGraphicsWidth() const
     tools::Long width = 0;
     if (mrShared.maContextHolder.isSet()
         && (
-#ifndef IOS
-               mrShared.mbWindow ||
-#endif
                mrShared.mbVirDev))
     {
         width = mrShared.mnWidth;
     }
 
-#ifndef IOS
-    if (width == 0)
-    {
-        if (mrShared.mbWindow && mrShared.mpFrame)
-        {
-            width = mrShared.mpFrame->GetWidth();
-        }
-    }
-#endif
     return width;
 }
 
@@ -1003,23 +988,6 @@ Color AquaGraphicsBackend::getPixel(tools::Long nX, tools::Long nY)
 
 void AquaSalGraphics::GetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY)
 {
-#ifndef IOS
-    if (!mnRealDPIY)
-    {
-        initResolution((maShared.mbWindow && maShared.mpFrame) ? maShared.mpFrame->getNSWindow()
-                                                               : nil);
-    }
-
-    if (maShared.mbPrinter)
-    {
-        rDPIX = rDPIY = 720;
-    }
-    else
-    {
-        rDPIX = mnRealDPIX;
-        rDPIY = mnRealDPIY;
-    }
-#else
     // This *must* be 96 or else the iOS app will behave very badly (tiles are scaled wrongly and
     // don't match each others at their boundaries, and other issues). But *why* it must be 96 I
     // have no idea. The commit that changed it to 96 from (the arbitrary) 200 did not say. If you
@@ -1030,7 +998,6 @@ void AquaSalGraphics::GetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY)
     // Chosen to match previous hardcoded value of 3840 for
     // the current tile pixel size of 256.
     rDPIX = rDPIY = 96;
-#endif
 }
 
 void AquaGraphicsBackend::pattern50Fill()
@@ -1130,65 +1097,12 @@ void AquaGraphicsBackend::invert(sal_uInt32 nPoints, const Point* pPtAry, SalInv
     }
 }
 
-#ifndef IOS
-bool AquaGraphicsBackend::drawEPS(tools::Long nX, tools::Long nY, tools::Long nWidth,
-                                  tools::Long nHeight, void* pEpsData, sal_uInt32 nByteCount)
-{
-    // convert the raw data to an NSImageRef
-    NSData* xNSData = [NSData dataWithBytes:pEpsData length:static_cast<int>(nByteCount)];
-    SAL_WNODEPRECATED_DECLARATIONS_PUSH
-    // 'NSEPSImageRep' is deprecated: first deprecated in macOS 14.0 - `NSEPSImageRep` instances
-    // cannot be created on macOS 14.0 and later
-    NSImageRep* xEpsImage = [NSEPSImageRep imageRepWithData:xNSData];
-    SAL_WNODEPRECATED_DECLARATIONS_POP
-    if (!xEpsImage)
-    {
-        return false;
-    }
-    // get the target context
-    if (!mrShared.checkContext())
-    {
-        return false;
-    }
-    // NOTE: flip drawing, else the nsimage would be drawn upside down
-    mrShared.maContextHolder.saveState();
-    //  CGContextTranslateCTM( maContextHolder.get(), 0, +mnHeight );
-    CGContextScaleCTM(mrShared.maContextHolder.get(), +1, -1);
-    nY = /*mnHeight*/ -(nY + nHeight);
-
-    // prepare the target context
-    NSGraphicsContext* pOrigNSCtx = [NSGraphicsContext currentContext];
-    [pOrigNSCtx retain];
-
-    // create new context
-    NSGraphicsContext* pDrawNSCtx =
-        [NSGraphicsContext graphicsContextWithCGContext:mrShared.maContextHolder.get()
-                                                flipped:mrShared.isFlipped()];
-    // set it, setCurrentContext also releases the previously set one
-    [NSGraphicsContext setCurrentContext:pDrawNSCtx];
-
-    // draw the EPS
-    const NSRect aDstRect = NSMakeRect(nX, nY, nWidth, nHeight);
-    const bool bOK = [xEpsImage drawInRect:aDstRect];
-
-    // restore the NSGraphicsContext
-    [NSGraphicsContext setCurrentContext:pOrigNSCtx];
-    [pOrigNSCtx release]; // restore the original retain count
-
-    mrShared.maContextHolder.restoreState();
-    // mark the destination rectangle as updated
-    refreshRect(aDstRect);
-
-    return bOK;
-}
-#else
 bool AquaGraphicsBackend::drawEPS(tools::Long /*nX*/, tools::Long /*nY*/, tools::Long /*nWidth*/,
                                   tools::Long /*nHeight*/, void* /*pEpsData*/,
                                   sal_uInt32 /*nByteCount*/)
 {
     return false;
 }
-#endif
 
 void AquaGraphicsBackend::drawAlphaBitmap(const SalTwoRect& rPosAry, const SalBitmap& rSalBitmap)
 {

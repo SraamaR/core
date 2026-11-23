@@ -1132,41 +1132,9 @@ cygwin*|wsl*)
     fi
     ;;
 
-darwin*) # macOS
-    if test "$enable_headless" != "yes"; then
-        using_freetype_fontconfig=no
-    else
-        using_freetype_fontconfig=yes
-    fi
-    using_unix_desktop=no
-    using_x11=no
-    build_skia=yes
-    enable_pagein=no
-    if test -n "$LODE_HOME" ; then
-        mac_sanitize_path
-        AC_MSG_NOTICE([sanitized the PATH to $PATH])
-    fi
-    test_qt6=yes
-    _os=Darwin
-    INSTROOTBASESUFFIX=/$PRODUCTNAME_WITHOUT_SPACES.app
-    INSTROOTCONTENTSUFFIX=/Contents
-    SDKDIRNAME=${PRODUCTNAME_WITHOUT_SPACES}${PRODUCTVERSION}_SDK
-    # See "Default values, as such probably valid just for Linux" comment above the case "$host_os"
-    LINKFLAGSSHL="-dynamiclib"
-
-    # -fPIC is default
-    PICSWITCH=""
-
-    DLLPOST=".dylib"
-
-    # -undefined error is the default
-    LINKFLAGSNOUNDEFS=""
-    case "$host_cpu" in
-    aarch64|arm64)
-        # Apple's Clang uses "arm64"
-        host_cpu_for_clang=arm64
-    esac
-;;
+darwin*)
+    AC_MSG_ERROR([macOS is no longer a supported build target on the linuxoffice branch])
+    ;;
 
 ios*) # iOS
     using_freetype_fontconfig=no
@@ -2220,38 +2188,6 @@ AC_ARG_ENABLE(wix,
         [Build Windows installer using WiX.]),
 ,)
 
-AC_ARG_ENABLE(macosx-code-signing,
-    AS_HELP_STRING([--enable-macosx-code-signing=<identity>],
-        [Sign executables, dylibs, frameworks and the app bundle. If you
-         don't provide an identity the first suitable certificate
-         in your keychain is used.]),
-,)
-
-AC_ARG_ENABLE(macosx-package-signing,
-    AS_HELP_STRING([--enable-macosx-package-signing=<identity>],
-        [Create a .pkg suitable for uploading to the Mac App Store and sign
-         it. If you don't provide an identity the first suitable certificate
-         in your keychain is used.]),
-,)
-
-AC_ARG_ENABLE(macosx-sandbox,
-    AS_HELP_STRING([--enable-macosx-sandbox],
-        [Make the app bundle run in a sandbox. Requires code signing.
-         Is required by apps distributed in the Mac App Store, and implies
-         adherence to App Store rules.]),
-,)
-
-AC_ARG_WITH(macosx-bundle-identifier,
-    AS_HELP_STRING([--with-macosx-bundle-identifier=tld.mumble.orifice.TheOffice],
-        [Define the macOS bundle identifier. Default is the somewhat weird
-         org.libreoffice.script ("script", huh?).]),
-,with_macosx_bundle_identifier=org.libreoffice.script)
-
-AC_ARG_WITH(macosx-provisioning-profile,
-    AS_HELP_STRING([--with-macosx-provisioning-profile=/path/to/mac.provisionprofile],
-        [Specify the path to a provisioning profile to use]),
-,)
-
 AC_ARG_WITH(product-name,
     AS_HELP_STRING([--with-product-name='My Own Office Suite'],
         [Define the product name. Default is AC_PACKAGE_NAME.]),
@@ -2528,7 +2464,7 @@ AC_ARG_WITH(package-format,
     AS_HELP_STRING([--with-package-format],
         [Specify package format(s) for LibreOffice installation sets. The
          implicit --without-package-format leads to no installation sets being
-         generated. Possible values: archive, bsd, deb, dmg, emscripten,
+         generated. Possible values: archive, bsd, deb, emscripten,
          installed, msi, pkg, and rpm.
          Example: --with-package-format='deb rpm']),
 ,)
@@ -3883,196 +3819,6 @@ dnl ENABLE_JAVA="TRUE" if we want there to be *run-time* (and build-time) suppor
 
 dnl ENABLE_JAVA="" indicate no Java support at all
 
-dnl ===================================================================
-dnl Check macOS SDK and compiler
-dnl ===================================================================
-
-if test $_os = Darwin; then
-
-    # The SDK in the currently selected Xcode should be found.
-
-    AC_MSG_CHECKING([what macOS SDK to use])
-    # XCode only ships with a single SDK for a while now, and using older SDKs alongside is not
-    # really supported anymore, instead you'd use different copies of Xcode, each with their own
-    # SDK, and thus xcrun will pick the SDK that matches the currently selected Xcode version
-    # also restricting the SDK version to "known good" versions doesn't seem necessary anymore, the
-    # problems that existed in the PPC days with target versions not being respected or random
-    # failures seems to be a thing of the past or rather: limiting either the Xcode version or the
-    # SDK version is enough, no need to do both...
-    MACOSX_SDK_PATH=`xcrun --sdk macosx --show-sdk-path 2> /dev/null`
-    if test ! -d "$MACOSX_SDK_PATH"; then
-        AC_MSG_ERROR([Could not find an appropriate macOS SDK])
-    fi
-    macosx_sdk=`xcodebuild -version -sdk "$MACOSX_SDK_PATH" SDKVersion`
-    MACOSX_SDK_BUILD_VERSION=$(xcodebuild -version -sdk "$MACOSX_SDK_PATH" ProductBuildVersion)
-    # format changed between 10.9 and 10.10 - up to 10.9 it was just four digits (1090), starting
-    # with macOS 10.10 it was switched to account for x.y.z with six digits, 10.10 is 101000,
-    # 10.10.2 is 101002
-    # we don't target the lower versions anymore, so it doesn't matter that we don't generate the
-    # correct version in case such an old SDK is specified, it will be rejected later anyway
-    MACOSX_SDK_VERSION=$(echo $macosx_sdk | $AWK -F. '{ print $1*10000+$2*100+$3 }')
-    # we require Xcode 16.2 or later, and thus macOS SDK 15.2 or later/older versions might work
-    # but are untested
-    if test $MACOSX_SDK_VERSION -lt 150200; then
-        AC_MSG_ERROR([macOS SDK $macosx_sdk is not supported, lowest supported version is 15.2])
-    fi
-    AC_MSG_RESULT([macOS SDK $macosx_sdk at $MACOSX_SDK_PATH])
-
-    AC_MSG_CHECKING([what minimum version of macOS to require])
-    if test "$with_macosx_version_min_required" = "" ; then
-        with_macosx_version_min_required="11.0";
-    fi
-    # see same notes about MACOSX_SDK_VERSION above
-    MAC_OS_X_VERSION_MIN_REQUIRED=$(echo $with_macosx_version_min_required | $AWK -F. '{ print $1*10000+$2*100+$3 }')
-    if test $MAC_OS_X_VERSION_MIN_REQUIRED -lt 110000; then
-        AC_MSG_ERROR([with-macosx-version-min-required $with_macosx_version_min_required is not a supported value, minimum supported version is 11])
-    fi
-    AC_MSG_RESULT([$with_macosx_version_min_required])
-
-    AC_MSG_CHECKING([that macosx-version-min-required is coherent with macos-with-sdk])
-    if test $MAC_OS_X_VERSION_MIN_REQUIRED -gt $MACOSX_SDK_VERSION; then
-        AC_MSG_ERROR([the version minimum required ($with_macosx_version_min_required) cannot be greater than the sdk level ($macosx_sdk)])
-    else
-        AC_MSG_RESULT([yes])
-    fi
-
-    # export this so that "xcrun" invocations later return matching values
-    DEVELOPER_DIR="${MACOSX_SDK_PATH%/SDKs*}"
-    DEVELOPER_DIR="${DEVELOPER_DIR%/Platforms*}"
-    export DEVELOPER_DIR
-    FRAMEWORKSHOME="$MACOSX_SDK_PATH/System/Library/Frameworks"
-    MACOSX_DEPLOYMENT_TARGET="$with_macosx_version_min_required"
-
-    AC_MSG_CHECKING([whether Xcode is new enough])
-    my_xcode_ver1=$(xcrun xcodebuild -version | head -n 1)
-    my_xcode_ver2=${my_xcode_ver1#Xcode }
-    my_xcode_ver3=$(printf %s "$my_xcode_ver2" | $AWK -F. '{ print $1*100+($2<100?$2:99) }')
-    if test "$my_xcode_ver3" -ge 1602; then
-        AC_MSG_RESULT([yes ($my_xcode_ver2)])
-    else
-        AC_MSG_ERROR(["$my_xcode_ver1" is too old or unrecognized, must be at least Xcode 16.2])
-    fi
-
-    my_xcode_ver1=$(xcrun xcodebuild -version | tail -n 1)
-    MACOSX_XCODE_BUILD_VERSION=${my_xcode_ver1#Build version }
-
-    LIBTOOL=/usr/bin/libtool
-    INSTALL_NAME_TOOL=install_name_tool
-    if test -z "$save_CC"; then
-        stdlib=-stdlib=libc++
-
-        AC_MSG_CHECKING([what C compiler to use])
-        CC="`xcrun -find clang`"
-        CC_BASE=`first_arg_basename "$CC"`
-        if test "$host_cpu" = x86_64; then
-            CC+=" -target x86_64-apple-macos"
-        else
-            CC+=" -target arm64-apple-macos"
-        fi
-        CC+=" -mmacosx-version-min=$with_macosx_version_min_required -isysroot $MACOSX_SDK_PATH"
-        AC_MSG_RESULT([$CC])
-
-        AC_MSG_CHECKING([what C++ compiler to use])
-        CXX="`xcrun -find clang++`"
-        CXX_BASE=`first_arg_basename "$CXX"`
-        if test "$host_cpu" = x86_64; then
-            CXX+=" -target x86_64-apple-macos"
-        else
-            CXX+=" -target arm64-apple-macos"
-        fi
-        CXX+=" $stdlib -mmacosx-version-min=$with_macosx_version_min_required -isysroot $MACOSX_SDK_PATH"
-        AC_MSG_RESULT([$CXX])
-
-        INSTALL_NAME_TOOL=`xcrun -find install_name_tool`
-        AR=`xcrun -find ar`
-        NM=`xcrun -find nm`
-        STRIP=`xcrun -find strip`
-        LIBTOOL=`xcrun -find libtool`
-        RANLIB=`xcrun -find ranlib`
-    fi
-
-    AC_MSG_CHECKING([whether to do code signing])
-
-    if test -z "$enable_macosx_code_signing" -o "$enable_macosx_code_signing" == "no" ; then
-        AC_MSG_RESULT([no])
-    else
-        if test "$enable_macosx_code_signing" = yes; then
-            # By default use the first suitable certificate (?).
-
-            # https://developer.apple.com/documentation/xcode/creating-distribution-signed-code-for-the-mac#Confirm-your-code-signing-identity
-            # For distribution outside the Mac App Store, use the "Developer ID Application" one.
-            # For distribution in the App Store, please use "Apple Distribution" one.
-            identity="Developer ID Application:"
-        else
-            identity=$enable_macosx_code_signing
-        fi
-        identity=`security find-identity -p codesigning -v 2>/dev/null | $AWK "/$identity/{print \\$2; exit}"`
-        if test -n "$identity"; then
-            MACOSX_CODESIGNING_IDENTITY=$identity
-            pretty_name=`security find-identity -p codesigning -v | grep "$MACOSX_CODESIGNING_IDENTITY" | sed -e 's/^[[^"]]*"//' -e 's/"//'`
-            MACOSX_CODESIGNING_TEAM_IDENTIFIER=`echo $pretty_name | sed -e 's#.*(\([[:alnum:]]*\))#\1#'`
-            AC_MSG_RESULT([yes, using the identity $MACOSX_CODESIGNING_IDENTITY for $pretty_name])
-        else
-            AC_MSG_ERROR([cannot determine identity to use])
-        fi
-    fi
-
-    AC_MSG_CHECKING([whether to create a Mac App Store package])
-
-    if test -z "$enable_macosx_package_signing" || test "$enable_macosx_package_signing" == no; then
-        AC_MSG_RESULT([no])
-    elif test -z "$MACOSX_CODESIGNING_IDENTITY"; then
-        AC_MSG_ERROR([You forgot --enable-macosx-code-signing])
-    else
-        if test "$enable_macosx_package_signing" = yes; then
-            # By default use the first suitable certificate.
-            # It should be a "3rd Party Mac Developer Installer" one
-            identity="3rd Party Mac Developer Installer:"
-        else
-            identity=$enable_macosx_package_signing
-        fi
-        identity=`security find-identity -v 2>/dev/null | $AWK "/$identity/ {print \\$2; exit}"`
-        if test -n "$identity"; then
-            MACOSX_PACKAGE_SIGNING_IDENTITY=$identity
-            pretty_name=`security find-identity -v | grep "$MACOSX_PACKAGE_SIGNING_IDENTITY" | sed -e 's/^[[^"]]*"//' -e 's/"//'`
-            AC_MSG_RESULT([yes, using the identity $MACOSX_PACKAGE_SIGNING_IDENTITY for $pretty_name])
-        else
-            AC_MSG_ERROR([Could not find any suitable '3rd Party Mac Developer Installer' certificate])
-        fi
-    fi
-
-    if test -n "$MACOSX_CODESIGNING_IDENTITY" -a -n "$MACOSX_PACKAGE_SIGNING_IDENTITY" -a "$MACOSX_CODESIGNING_IDENTITY" = "$MACOSX_PACKAGE_SIGNING_IDENTITY"; then
-        AC_MSG_ERROR([You should not use the same identity for code and package signing])
-    fi
-
-    AC_MSG_CHECKING([whether to sandbox the application])
-
-    if test -n "$ENABLE_JAVA" -a "$enable_macosx_sandbox" = yes; then
-        AC_MSG_ERROR([macOS sandboxing (actually App Store rules) disallows use of Java])
-    elif test "$enable_macosx_sandbox" = yes; then
-        ENABLE_MACOSX_SANDBOX=TRUE
-        AC_DEFINE(HAVE_FEATURE_MACOSX_SANDBOX)
-        AC_MSG_RESULT([yes])
-    else
-        AC_MSG_RESULT([no])
-    fi
-
-    AC_MSG_CHECKING([what macOS app bundle identifier to use])
-    MACOSX_BUNDLE_IDENTIFIER=$with_macosx_bundle_identifier
-    AC_MSG_RESULT([$MACOSX_BUNDLE_IDENTIFIER])
-
-    if test -n "$with_macosx_provisioning_profile" ; then
-        if test ! -f "$with_macosx_provisioning_profile"; then
-            AC_MSG_ERROR([provisioning profile not found at $with_macosx_provisioning_profile])
-        else
-            MACOSX_PROVISIONING_PROFILE=$with_macosx_provisioning_profile
-            MACOSX_PROVISIONING_INFO=$([security cms -D -i "$MACOSX_PROVISIONING_PROFILE" | \
-                xmllint --xpath "//key[.='com.apple.application-identifier' or .='com.apple.developer.team-identifier'] \
-                    | //key[.='com.apple.application-identifier' or .='com.apple.developer.team-identifier']/following-sibling::string[1]" - | \
-                sed -e 's#><#>\n\t<#g' -e 's#^#\t#'])
-        fi
-    fi
-fi
 AC_SUBST(MACOSX_SDK_PATH)
 AC_SUBST(MACOSX_DEPLOYMENT_TARGET)
 AC_SUBST(MAC_OS_X_VERSION_MIN_REQUIRED)
@@ -6155,7 +5901,7 @@ AC_MSG_CHECKING([which package format to use])
 if test -n "$with_package_format" -a "$with_package_format" != no; then
     for i in $with_package_format; do
         case "$i" in
-        bsd | deb | pkg | rpm | archive | dmg | installed | msi | emscripten)
+        bsd | deb | pkg | rpm | archive | installed | msi | emscripten)
             ;;
         *)
             AC_MSG_ERROR([unsupported format $i. Supported by EPM are:
@@ -6166,7 +5912,6 @@ rpm - RedHat software distribution
 
 LibreOffice additionally supports:
 archive - .tar.gz or .zip
-dmg - macOS .dmg
 emscripten - directory with qt_soffice.html etc.
 installed - installation tree
 msi - Windows .msi
@@ -6319,14 +6064,8 @@ if test "$cross_compiling" = "yes"; then
         bin/verapdf.sh.in \
         instsetoo_native/util/openoffice.lst.in \
         config_host/*.in \
-        sysui/desktop/macosx/Info.plist.in \
-        sysui/desktop/macosx/LaunchConstraint.plist.in \
-        sysui/desktop/macosx/hardened_runtime.xcent.in \
-        sysui/desktop/macosx/lo.xcent.in \
         .vscode/vs-code-template.code-workspace.in \
         solenv/lockfile/autoconf.h.in \
-        extensions/source/macosx/quicklookpreview/appex/Info.plist.in \
-        extensions/source/macosx/quicklookthumbnail/appex/Info.plist.in \
         ) \
     | (cd CONF-FOR-BUILD && tar xf -)
     cp configure CONF-FOR-BUILD
@@ -16560,12 +16299,6 @@ AC_CONFIG_FILES([
                  bin/officeotron.sh
                  bin/verapdf.sh
                  instsetoo_native/util/openoffice.lst
-                 sysui/desktop/macosx/Info.plist
-                 sysui/desktop/macosx/LaunchConstraint.plist
-                 hardened_runtime.xcent:sysui/desktop/macosx/hardened_runtime.xcent.in
-                 lo.xcent:sysui/desktop/macosx/lo.xcent.in
-                 extensions/source/macosx/quicklookpreview/appex/Info.plist
-                 extensions/source/macosx/quicklookthumbnail/appex/Info.plist
                  ])
 # map unix-style mount dirs to windows directories: /mnt/c/foobar -> C:/foobar
 # easier to do it in a postprocessing command than to modify every single variable

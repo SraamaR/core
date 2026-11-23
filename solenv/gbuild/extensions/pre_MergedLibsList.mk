@@ -58,7 +58,7 @@ gb_MERGE_LIBRARY_LIST := \
 	lng \
 	lnth \
 	localebe1 \
-	$(if $(filter iOS MACOSX,$(OS)),MacOSXSpell) \
+	$(if $(filter iOS,$(OS)),MacOSXSpell) \
 	msfilter \
 	mtfrenderer \
 	numbertext \
@@ -122,11 +122,6 @@ gb_MERGE_LIBRARY_LIST += \
 	) \
 	analysis \
 	animcore \
-	$(call gb_Helper_optional,AVMEDIA, \
-		$(if $(filter MACOSX,$(OS)),\
-			avmediaMacAVF \
-		) \
-	) \
 	bib \
 	cached1 \
 	$(if $(ENABLE_CAIRO_CANVAS),cairocanvas) \
@@ -148,16 +143,10 @@ gb_MERGE_LIBRARY_LIST += \
 	$(if $(filter WNT,$(OS)), \
 		fps \
 	) \
-	$(if $(filter MACOSX,$(OS)),\
-		fps_aqua \
-	) \
 	graphicfilter \
 	hwp \
 	log \
 	$(if $(ENABLE_LWP),lwpft) \
-	$(if $(filter $(OS),MACOSX), \
-		macab1 \
-	) \
 	mozbootstrap \
 	msforms \
 	$(call gb_Helper_optional,DBCONNECTIVITY,mysql_jdbc) \

@@ -10,7 +10,6 @@
 $(eval $(call gb_Module_Module,sysui))
 
 ifneq ($(OS),WNT)
-ifneq ($(OS),MACOSX)
 $(eval $(call gb_Module_add_targets,sysui,\
 	CustomTarget_share \
 	Package_share \
@@ -18,13 +17,6 @@ $(eval $(call gb_Module_add_targets,sysui,\
 	$(if $(filter deb,$(PKGFORMAT)),CustomTarget_deb) \
 	$(if $(filter SOLARIS,$(OS)),CustomTarget_solaris) \
 ))
-else # OS=MACOSX
-$(eval $(call gb_Module_add_targets,sysui,\
-	Package_osxicons \
-	CustomTarget_infoplist \
-	Package_infoplist \
-))
-endif
 endif
 
 # vim: set noet sw=4 ts=4:

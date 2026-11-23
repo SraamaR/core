@@ -21,17 +21,7 @@
 
 #include <salbmp.hxx>
 #include <salinst.hxx>
-#ifdef MACOSX
-#include <osx/saldata.hxx>
-#else
 #include <ios/iosinst.hxx>
-#endif
-
-#ifdef MACOSX
-#include <premac.h>
-#include <Metal/Metal.h>
-#include <postmac.h>
-#endif
 
 static void CFRTLFree(void* /*info*/, const void* data, size_t /*size*/)
 {
@@ -91,77 +81,5 @@ CGImageRef CreateWithSalBitmapAndMask( const SalBitmap& rBitmap, const SalBitmap
     CFRelease( xImage );
     return xMaskedImage;
 }
-
-#ifdef MACOSX
-
-bool DefaultMTLDeviceIsSupported()
-{
-    id<MTLDevice> pMetalDevice = MTLCreateSystemDefaultDevice();
-    if (!pMetalDevice || !pMetalDevice.name)
-    {
-        SAL_WARN("vcl.skia", "MTLCreateSystemDefaultDevice() returned nil");
-        return false;
-    }
-
-    SAL_INFO("vcl.skia", "Default MTLDevice is \"" << [pMetalDevice.name UTF8String] << "\"");
-
-    bool bRet = true;
-
-    // tdf#156881 Disable Metal with AMD Radeon Pro 5XXX GPUs on macOS Catalina
-    // When running macOS Catalina on a 2019 MacBook Pro, unexpected drawing
-    // artifacts are drawn so disable Metal for the AMD Radeon Pro GPUs listed
-    // for that model in https://support.apple.com/kb/SP809.
-    if (@available(macOS 11, *))
-    {
-        // No known problems with macOS Big Sur or later
-    }
-    else
-    {
-       static NSString* pAMDRadeonPro5300Prefix = @"AMD Radeon Pro 5300M";
-       static NSString* pAMDRadeonPro5500Prefix = @"AMD Radeon Pro 5500M";
-       if ([pMetalDevice.name hasPrefix:pAMDRadeonPro5300Prefix] || [pMetalDevice.name hasPrefix:pAMDRadeonPro5500Prefix])
-           bRet = false;
-    }
-
-    if (bRet)
-    {
-        // tdf#160590 Disable Metal with Intel HD Graphics 6000
-        // Releasing a Metal buffer resource hangs when fetching pixels from a
-        // Skia surface on this Intel MacBook Air built-in GPU.
-       static NSString* pIntelHDGraphics6000Prefix = @"Intel(R) Iris(TM) Graphics 6000";
-       if ([pMetalDevice.name hasPrefix:pIntelHDGraphics6000Prefix])
-           bRet = false;
-    }
-
-    [pMetalDevice release];
-    return bRet;
-}
-
-void SalInstance::MacStartupWorkarounds()
-{
-    // HACK: When the first call to [NSSpellChecker sharedSpellChecker] (in
-    // lingucomponent/source/spellcheck/macosxspell/macspellimp.mm) is done both on a thread other
-    // than the main thread and with the SolarMutex erroneously locked, then that can lead to
-    // deadlock as [NSSpellChecker sharedSpellChecker] internally calls
-    //   AppKit`-[NSSpellChecker init] ->
-    //   AppKit`-[NSSpellChecker _fillSpellCheckerPopupButton:] ->
-    //   AppKit`-[NSApplication(NSServicesMenuPrivate) _fillSpellCheckerPopupButton:] ->
-    //   AppKit`-[NSMenu insertItem:atIndex:] ->
-    //   Foundation`-[NSNotificationCenter postNotificationName:object:userInfo:] ->
-    //   CoreFoundation`_CFXNotificationPost ->
-    //   Foundation`-[NSOperation waitUntilFinished]
-    // waiting for work to be done on the main thread, but the main thread is typically already
-    // blocked (in some event handling loop) waiting to acquire the SolarMutex.  The real solution
-    // would be to fix all the cases where a call to [NSSpellChecker sharedSpellChecker] in
-    // lingucomponent/source/spellcheck/macosxspell/macspellimp.mm is done while the SolarMutex is
-    // locked (somewhere up the call chain), but that appears to be rather difficult (see e.g.
-    // <https://bugs.documentfoundation.org/show_bug.cgi?id=151894> "FILEOPEN a Base Document with
-    // customized event for open a startform by 'open document' LO stuck").  So, at least for now,
-    // chicken out and do that first call to [NSSpellChecker sharedSpellChecker] upfront in a
-    // controlled environment:
-    [NSSpellChecker sharedSpellChecker];
-}
-
-#endif
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

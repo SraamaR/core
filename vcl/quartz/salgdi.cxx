@@ -49,21 +49,11 @@
 #include <font/fontsubstitution.hxx>
 #include <font/PhysicalFontCollection.hxx>
 
-#ifdef MACOSX
-#include <osx/salframe.h>
-#endif
 #include <quartz/utils.h>
 #ifdef IOS
 #include <ios/iosinst.hxx>
 #endif
 #include <sallayout.hxx>
-
-#include <config_features.h>
-#include <vcl/skia/SkiaHelper.hxx>
-#if !HAVE_FEATURE_SKIA
-static_assert(false, "skia is required on macOS");
-#endif
-#include <skia/osx/gdiimpl.hxx>
 
 #include <quartz/SystemFontList.hxx>
 #include <quartz/CoreTextFont.hxx>
@@ -190,26 +180,13 @@ bool CoreTextGlyphFallbackSubstititution::FindFontSubstitute(vcl::font::FontSele
     return bFound;
 }
 
-AquaSalGraphics::AquaSalGraphics(bool bPrinter)
+AquaSalGraphics::AquaSalGraphics()
     : mnRealDPIX( 0 )
     , mnRealDPIY( 0 )
 {
     SAL_INFO( "vcl.quartz", "AquaSalGraphics::AquaSalGraphics() this=" << this );
 
-    // tdf#146842 Do not use Skia for printing
-    // Skia does not work with a native print graphics contexts. I am not sure
-    // why but from what I can see, the Skia implementation drawing to a bitmap
-    // buffer. However, in an NSPrintOperation, the print view's backing buffer
-    // is CGPDFContext so even if this bug could be solved by blitting the
-    // Skia bitmap buffer, the printed PDF would not have selectable text so
-    // always disable Skia for print graphics contexts.
-    if(bPrinter)
-        mpBackend.reset(new AquaGraphicsBackend(maShared));
-    else
-    {
-        assert(SkiaHelper::isVCLSkiaEnabled() && "skia is required on macOS");
-        mpBackend.reset(new AquaSkiaSalGraphicsImpl(*this, maShared));
-    }
+    mpBackend = std::make_unique<AquaGraphicsBackend>(maShared);
 
     for (int i = 0; i < MAX_FALLBACK; ++i)
         mpFont[i] = nullptr;
@@ -237,9 +214,6 @@ AquaSalGraphics::~AquaSalGraphics()
         CGLayerRelease(maShared.maLayer.get());
     }
     else if (maShared.maContextHolder.isSet()
-#ifdef MACOSX
-             && maShared.mbWindow
-#endif
              )
     {
         // destroy backbuffer bitmap context that we created ourself
@@ -411,18 +385,6 @@ void AquaSalGraphics::DrawTextLayout(const GenericSalLayout& rLayout)
 {
     mpBackend->drawTextLayout(rLayout);
 }
-
-#ifdef MACOSX
-
-bool AquaSalGraphics::ShouldDownscaleIconsAtSurface(double& rScaleOut) const
-{
-    if (comphelper::LibreOfficeKit::isActive())
-        return SalGraphics::ShouldDownscaleIconsAtSurface(rScaleOut);
-    rScaleOut = sal::aqua::getWindowScaling();
-    return true;
-}
-
-#endif
 
 void AquaGraphicsBackend::drawTextLayout(const GenericSalLayout& rLayout)
 {

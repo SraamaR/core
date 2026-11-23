@@ -48,14 +48,6 @@ $(eval $(call gb_Module_add_targets,connectivity,\
 ))
 endif
 
-ifeq ($(OS),MACOSX)
-$(eval $(call gb_Module_add_targets,connectivity,\
-	Configuration_macab \
-	Library_macab1 \
-	Library_macabdrv1 \
-))
-endif
-
 ifeq ($(OS),WNT)
 $(eval $(call gb_Module_add_targets,connectivity,\
 	Configuration_ado \

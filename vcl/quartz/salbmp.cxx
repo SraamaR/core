@@ -39,11 +39,7 @@
 #include <quartz/utils.h>
 #include <bitmap/ScanlineTools.hxx>
 
-#ifdef MACOSX
-#include <osx/saldata.hxx>
-#else
 #include <ios/iosinst.hxx>
-#endif
 
 QuartzSalBitmap::QuartzSalBitmap()
   : mxCachedImage( nullptr )

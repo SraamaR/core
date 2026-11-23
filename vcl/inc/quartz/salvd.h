@@ -20,11 +20,7 @@
 #pragma once
 
 #include <premac.h>
-#ifdef MACOSX
-#include <ApplicationServices/ApplicationServices.h>
-#else
 #include <CoreGraphics/CoreGraphics.h>
-#endif
 #include <postmac.h>
 
 #include <tools/long.hxx>

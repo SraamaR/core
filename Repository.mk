@@ -85,8 +85,6 @@ $(eval $(call gb_Helper_register_executables,NONE, \
 	listglyphs \
 	$(if $(and $(ENABLE_GTK3), $(filter LINUX %BSD SOLARIS,$(OS))), gtktiledviewer) \
 	$(if $(and $(ENABLE_GTKTILEDVIEWER), $(filter WNT,$(OS))), gtktiledviewer) \
-	$(if $(filter MACOSX,$(OS)),QuickLookPreview) \
-	$(if $(filter MACOSX,$(OS)),QuickLookThumbnail) \
 ))
 
 $(eval $(call gb_Helper_register_executables_for_install,SDK,sdk, \
@@ -379,7 +377,7 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 	hyphen \
 	lnth \
 	spell \
-	$(if $(filter iOS MACOSX,$(OS)), \
+	$(if $(filter iOS,$(OS)), \
 		MacOSXSpell \
 	) \
 ))
@@ -388,11 +386,6 @@ endif
 $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
     avmedia \
 	$(if $(ENABLE_CURL),LanguageTool) \
-    $(call gb_Helper_optional,AVMEDIA, \
-	$(if $(filter MACOSX,$(OS)),\
-		avmediaMacAVF \
-	) \
-    ) \
 	$(call gb_Helper_optional,SCRIPTING, \
 		basctl \
 		basprov \
@@ -443,7 +436,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 	log \
 	lng \
 	$(call gb_Helper_optional,SCRIPTING,$(if $(ENABLE_QUICKJS),jsprov)) \
-	$(if $(filter $(OS),MACOSX),macbe1) \
 	$(if $(MERGELIBS),merged) \
 	migrationoo2 \
 	migrationoo3 \
@@ -517,12 +509,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 		smplmail \
 		wininetbe1 \
 	) \
-	$(if $(filter $(OS),MACOSX), \
-		$(if $(ENABLE_MACOSX_SANDBOX),, \
-			AppleRemote \
-		) \
-		fps_aqua \
-	) \
 ))
 
 $(eval $(call gb_Helper_register_plugins_for_install,OOOLIBS,ooo, \
@@ -532,7 +518,6 @@ $(eval $(call gb_Helper_register_plugins_for_install,OOOLIBS,ooo, \
     sdui \
     $(if $(ENABLE_GEN),vclplug_gen) \
     $(if $(ENABLE_WIN),vclplug_win) \
-    $(if $(filter $(OS),MACOSX),vclplug_osx) \
 ))
 
 $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,postgresqlsdbc, \
@@ -602,7 +587,6 @@ $(eval $(call gb_Helper_register_libraries,PLAINLIBS_NONE, \
 	precompiled_system \
 	$(if $(ENABLE_CLI),$(if $(filter MSC,$(COM)),cli_cppuhelper)) \
 	$(if $(filter $(OS),ANDROID),lo-bootstrap) \
-	$(if $(filter $(OS),MACOSX),OOoSpotlightImporter) \
 ))
 
 $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_URE,ure, \
@@ -706,10 +690,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooo, \
 	xmlsecurity \
 	xsec_xmlsec \
 	xstor \
-	$(if $(filter $(OS),MACOSX), \
-		macab1 \
-		macabdrv1 \
-	) \
 	$(if $(filter WNT,$(OS)), \
 		fps \
 		inprocserv \
@@ -891,7 +871,6 @@ $(eval $(call gb_Helper_register_packages_for_install,ure,\
 		jvmfwk_jvmfwk3_ini \
 		jvmfwk_javavendors \
 		jvmfwk_jreproperties \
-		$(if $(filter MACOSX,$(OS)),bridges_jnilib_java_uno) \
 	) \
 ))
 
@@ -940,14 +919,6 @@ endif
 $(eval $(call gb_Helper_register_packages_for_install,ooo,\
 	$(if $(SYSTEM_LIBEXTTEXTCAT),,libexttextcat_fingerprint) \
 	officecfg_misc \
-	$(if $(filter $(OS),MACOSX), \
-		extensions_mdibundle \
-		extensions_OOoSpotlightImporter \
-		extensions_quicklookpreviewappex \
-		extensions_QuickLookPreview \
-		extensions_quicklookthumbnailappex \
-		extensions_QuickLookThumbnail \
-	) \
 	extras_autocorr \
 	extras_autotext \
 	extras_autotextuser \
@@ -979,7 +950,6 @@ $(eval $(call gb_Helper_register_packages_for_install,ooo,\
 		extras_tplwizard \
 	) \
 	framework_dtd \
-	$(if $(filter $(OS),MACOSX),infoplist) \
 	oox_customshapes \
 	oox_generated \
 	package_dtd \
@@ -987,7 +957,6 @@ $(eval $(call gb_Helper_register_packages_for_install,ooo,\
 		$(if $(filter-out WNT,$(OS)),$(if $(ENABLE_MACOSX_SANDBOX),,shell_senddoc))) \
 	$(call gb_Helper_optional,DESKTOP,$(if $(filter-out EMSCRIPTEN MACOSX WNT,$(OS)),svx_gengal)) \
 	$(if $(USING_UNIX_DESKTOP),vcl_fontunxppds) \
-	$(if $(filter $(OS),MACOSX),vcl_osxres) \
 	xmloff_dtd \
 	xmlscript_dtd \
     $(call gb_Helper_optional,XMLHELP,xmlhelp_helpxsl) \
@@ -998,7 +967,6 @@ $(eval $(call gb_Helper_register_packages_for_install,ooo,\
 		$(if $(ENABLE_SCRIPTING_JAVASCRIPT),scripting_ScriptsJavaScript) \
 	) \
 	$(call gb_Helper_optional,SCRIPTING,scripting_scriptbindinglib) \
-	$(if $(filter $(OS),MACOSX),sysui_osxicons) \
 	wizards_basicshare \
 	wizards_basicsrvaccess2base \
 	wizards_basicsrvdepot \

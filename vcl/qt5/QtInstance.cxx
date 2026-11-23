@@ -278,8 +278,6 @@ QtInstance::QtInstance()
 #else
     : WindowsInstance(std::make_unique<QtYieldMutex>(), new SalData)
 #endif
-#elif defined MACOSX
-    : MacInstance()
 #else
     : SalGenericInstance(std::make_unique<QtYieldMutex>(), new GenericUnixSalData)
 #endif

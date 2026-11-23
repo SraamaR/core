@@ -23,16 +23,10 @@
 #include <vcl/svapp.hxx>
 #include <vcl/sysdata.hxx>
 
-#ifdef MACOSX
-#include <osx/salinst.h>
-#include <osx/saldata.hxx>
-#include <osx/salframe.h>
-#else
 #include <ios/iosinst.hxx>
 #include "headless/svpframe.hxx"
 #include "headless/svpinst.hxx"
 #include "headless/svpvd.hxx"
-#endif
 #include <quartz/salgdi.h>
 #include <quartz/salvd.h>
 #include <quartz/utils.h>

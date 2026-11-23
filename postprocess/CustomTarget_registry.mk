@@ -494,12 +494,7 @@ postprocess_FILES_postgresql := \
 postprocess_DRIVERS += postgresql
 endif
 
-ifeq (MACOSX,$(OS))
-postprocess_FILES_main += \
-	$(call gb_XcuModuleTarget_get_target,connectivity/registry/macab)/org/openoffice/Office/DataAccess/Drivers-macab.xcu
-postprocess_DRIVERS += macab
-
-else ifeq (WNT,$(OS))
+ifeq (WNT,$(OS))
 postprocess_FILES_main += \
 	$(call gb_XcuModuleTarget_get_target,connectivity/registry/ado)/org/openoffice/Office/DataAccess/Drivers-ado.xcu
 postprocess_DRIVERS += ado

@@ -43,12 +43,6 @@ This allows embedding LO into a Win32 application as an ActiveX control.
 
 See `extensions/source/activex/`
 
-## Spotlight Provider
-
-On macOS, this allows indexing ODF documents with Spotlight.
-
-See `extensions/source/macosx/spotlight/`
-
 ## Scanner Support
 
 You can scan from LibreOffice, using platform specific backends like TWAIN/SANE.

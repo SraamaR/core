@@ -36,14 +36,6 @@ struct sockaddr_in;
   #include <netinet/in.h>
 #endif
 
-#ifdef MACOSX
-  #include <osl/conditn.hxx>
-  #include <premac.h>
-  #import <CoreFoundation/CoreFoundation.h>
-  #include <postmac.h>
-  #import "OSXNetworkService.hxx"
-#endif
-
 #if HAVE_FEATURE_AVAHI
   #include "AvahiNetworkService.hxx"
 #endif
@@ -74,12 +66,6 @@ DiscoveryService::~DiscoveryService()
 
 void DiscoveryService::setupSockets()
 {
-
-#ifdef MACOSX
-    // Bonjour for OSX
-    zService = new OSXNetworkService();
-    zService->setup();
-#endif
 
 #if HAVE_FEATURE_AVAHI
     // Avahi for Linux

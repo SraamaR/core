@@ -325,24 +325,9 @@ $(eval $(call gb_SdiTarget_set_include,sfx2/sdi/sfxslots,\
     -I$(SRCDIR)/sfx2/sdi \
 ))
 
-ifeq ($(OS),$(filter WNT MACOSX,$(OS)))
+ifeq ($(OS),WNT)
 $(eval $(call gb_Library_add_defs,sfx,\
     -DENABLE_QUICKSTART_APPLET \
-))
-endif
-
-ifeq ($(OS),MACOSX)
-$(eval $(call gb_Library_add_cxxflags,sfx,\
-    $(gb_OBJCXXFLAGS) \
-))
-$(eval $(call gb_Library_add_objcxxobjects,sfx,\
-    sfx2/source/appl/shutdowniconaqua \
-))
-$(eval $(call gb_Library_add_libs,sfx,\
-    -lobjc \
-))
-$(eval $(call gb_Library_use_system_darwin_frameworks,sfx,\
-    Cocoa \
 ))
 endif
 

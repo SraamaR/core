@@ -30,8 +30,6 @@
 #include <vclpluginapi.h>
 #ifdef _WIN32
 #include <win/WindowsInstance.hxx>
-#elif defined MACOSX
-#include <osx/MacInstance.hxx>
 #else
 #include <unx/geninst.h>
 #endif
@@ -83,8 +81,6 @@ class VCLPLUG_QT_PUBLIC QtInstance : public QObject,
 #ifndef Q_MOC_RUN
 #ifdef _WIN32
                                      public WindowsInstance,
-#elif defined MACOSX
-                                     public MacInstance,
 #else
                                      public SalGenericInstance,
 #endif

@@ -26,14 +26,8 @@
 #include <tools/long.hxx>
 
 #include <premac.h>
-#ifdef MACOSX
-#include <ApplicationServices/ApplicationServices.h>
-#include <osx/osxvcltypes.h>
-#include <osx/salframe.h>
-#else
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
-#endif
 #include <postmac.h>
 
 #ifdef IOS
@@ -44,7 +38,6 @@
 
 #include <vcl/fontcapabilities.hxx>
 #include <vcl/metric.hxx>
-
 
 #include <font/LogicalFontInstance.hxx>
 #include <font/FontMetricData.hxx>
@@ -60,10 +53,6 @@ class CoreTextFont;
 
 namespace sal::aqua
 {
-#ifdef MACOSX
-NSRect getTotalScreenBounds();
-void resetTotalScreenBounds();
-#endif
 float getWindowScaling();
 void resetWindowScaling();
 }
@@ -81,14 +70,8 @@ struct AquaSharedAttributes
     RGBAColor maFillColor;
 
     // Graphics types
-#ifdef MACOSX
-    AquaSalFrame* mpFrame;
-    /// is this a window graphics
-    bool mbWindow;
-#else // IOS
     // mirror AquaSalVirtualDevice::mbForeignContext for SvpSalGraphics objects related to such
     bool mbForeignContext;
-#endif
     /// is this a printer graphics
     bool mbPrinter;
     /// is this a virtual device graphics
@@ -113,12 +96,7 @@ struct AquaSharedAttributes
         : mxClipPath(nullptr)
         , maLineColor(COL_WHITE)
         , maFillColor(COL_BLACK)
-#ifdef MACOSX
-        , mpFrame(nullptr)
-        , mbWindow(false)
-#else
         , mbForeignContext(false)
-#endif
         , mbPrinter(false)
         , mbVirDev(false)
         , mnWidth(0)
@@ -157,30 +135,11 @@ struct AquaSharedAttributes
 
     void refreshRect(float lX, float lY, float lWidth, float lHeight)
     {
-#ifdef MACOSX
-        if (!mbWindow) // view only on Window graphics
-            return;
-
-        if (mpFrame)
-        {
-            // update a little more around the designated rectangle
-            // this helps with antialiased rendering
-            // Rounding down x and width can accumulate a rounding error of up to 2
-            // The decrementing of x, the rounding error and the antialiasing border
-            // require that the width and the height need to be increased by four
-            const tools::Rectangle aVclRect(
-                    Point(tools::Long(lX - 1), tools::Long(lY - 1)),
-                    Size(tools::Long(lWidth + 4), tools::Long(lHeight + 4)));
-
-            mpFrame->maInvalidRect.Union(aVclRect);
-        }
-#else
         (void) lX;
         (void) lY;
         (void) lWidth;
         (void) lHeight;
         return;
-#endif
     }
 
     // apply the XOR mask to the target context if active and dirty
@@ -198,11 +157,7 @@ struct AquaSharedAttributes
     // make some graphics seem to be vertically-mirrored from a VCL perspective
     bool isFlipped() const
     {
-    #ifdef MACOSX
-        return mbWindow;
-    #else
         return false;
-    #endif
     }
 };
 
@@ -248,22 +203,10 @@ class AquaGraphicsBackend final : public SalGraphicsImpl, public AquaGraphicsBac
 private:
     void drawPixelImpl( tools::Long nX, tools::Long nY, const RGBAColor& rColor); // helper to draw single pixels
 
-#ifdef MACOSX
-    void refreshRect(const NSRect& rRect)
-    {
-        mrShared.refreshRect(rRect.origin.x, rRect.origin.y, rRect.size.width, rRect.size.height);
-    }
-#else
     void refreshRect(const CGRect& /*rRect*/)
     {}
-#endif
 
     void pattern50Fill();
-
-#ifdef MACOSX
-    void copyScaledArea(tools::Long nDestX, tools::Long nDestY, tools::Long nSrcX, tools::Long nSrcY,
-                        tools::Long nSrcWidth, tools::Long nSrcHeight, AquaSharedAttributes* pSrcShared);
-#endif
 
 public:
     AquaGraphicsBackend(AquaSharedAttributes & rShared);
@@ -377,31 +320,12 @@ class AquaSalGraphics : public SalGraphicsAutoDelegateToImpl
     rtl::Reference<CoreTextFont>            mpFont[MAX_FALLBACK];
 
 public:
-                            AquaSalGraphics(bool bPrinter = false);
+                            AquaSalGraphics();
     virtual                 ~AquaSalGraphics() override;
 
     void                    SetVirDevGraphics(SalVirtualDevice* pVirDev,CGLayerHolder const &rLayer, CGContextRef, int nBitDepth = 0);
-#ifdef MACOSX
-    void                    initResolution( NSWindow* );
-    void                    copyResolution( AquaSalGraphics& );
-    void                    updateResolution();
 
-    void                    SetWindowGraphics( AquaSalFrame* pFrame );
-    bool                    IsWindowGraphics() const { return maShared.mbWindow; }
-    void                    SetPrinterGraphics(CGContextRef, sal_Int32 nRealDPIX, sal_Int32 nRealDPIY);
-    AquaSalFrame*           getGraphicsFrame() const { return maShared.mpFrame; }
-    void                    setGraphicsFrame( AquaSalFrame* pFrame ) { maShared.mpFrame = pFrame; }
-#endif
-
-#ifdef MACOSX
-    void                    UpdateWindow( NSRect& ); // delivered in NSView coordinates
-    void                    RefreshRect(const NSRect& rRect)
-    {
-        maShared.refreshRect(rRect.origin.x, rRect.origin.y, rRect.size.width, rRect.size.height);
-    }
-#else
     void                    RefreshRect( const CGRect& ) {}
-#endif
 
     void                    Flush();
     void                    Flush( const tools::Rectangle& );
@@ -417,25 +341,6 @@ public:
     }
 
     virtual SalGraphicsImpl* GetImpl() const override;
-
-#ifdef MACOSX
-
-protected:
-
-    // native widget rendering methods that require mirroring
-
-    virtual bool            isNativeControlSupported( ControlType nType, ControlPart nPart ) override;
-
-    virtual bool            hitTestNativeControl( ControlType nType, ControlPart nPart, const tools::Rectangle& rControlRegion,
-                                                  const Point& aPos, bool& rIsInside ) override;
-    virtual bool            drawNativeControl( ControlType nType, ControlPart nPart, const tools::Rectangle& rControlRegion,
-                                               ControlState nState, const ImplControlValue& aValue,
-                                               const OUString& aCaption, const Color& rBackgroundColor ) override;
-public:
-    virtual bool            getNativeControlRegion( ControlType nType, ControlPart nPart, const tools::Rectangle& rControlRegion, ControlState nState,
-                                                    const ImplControlValue& aValue, const OUString& aCaption,
-                                                    tools::Rectangle &rNativeBoundingRegion, tools::Rectangle &rNativeContentRegion ) override;
-#endif
 
 public:
     // get device resolution
@@ -459,10 +364,6 @@ public:
     virtual std::unique_ptr<GenericSalLayout>
                             GetTextLayout(int nFallbackLevel) override;
     virtual void            DrawTextLayout( const GenericSalLayout& ) override;
-
-#ifdef MACOSX
-    virtual bool            ShouldDownscaleIconsAtSurface(double& rScaleOut) const override;
-#endif
 
     virtual SystemGraphicsData
                             GetGraphicsData() const override;

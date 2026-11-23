@@ -677,7 +677,7 @@ void QtFrame::ShowFullScreen(bool bFullScreen, sal_Int32 nScreen)
 
 void QtFrame::StartPresentation(bool bStart)
 {
-#if defined LINUX || defined __sun || defined FREEBSD || defined OPENBSD || defined MACOSX
+#if defined LINUX || defined __sun || defined FREEBSD || defined OPENBSD
 #if CHECK_QT5_USING_X11
     std::optional<Display*> aDisplay;
     if (QX11Info::isPlatformX11())
@@ -1198,7 +1198,7 @@ void QtFrame::SetApplicationID(const OUString& rWMClass)
 #endif
 }
 
-#if defined(UNX) && !defined(ANDROID) && !defined(IOS) && !defined(MACOSX)
+#if defined(UNX) && !defined(ANDROID) && !defined(IOS)
 void QtFrame::ResolveWindowHandle(SystemEnvData& rData) const
 {
     if (!rData.pWidget)

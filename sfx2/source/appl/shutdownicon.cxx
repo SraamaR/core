@@ -575,8 +575,6 @@ void ShutdownIcon::LeaveModalMode()
 
 #ifdef _WIN32
 // defined in shutdowniconw32.cxx
-#elif defined MACOSX
-// defined in shutdowniconaqua.cxx
 #else
 bool ShutdownIcon::IsQuickstarterInstalled()
 {

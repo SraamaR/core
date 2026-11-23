@@ -89,12 +89,6 @@ endif
 
 endif
 
-ifeq ($(OS),MACOSX)
-$(eval $(call gb_Module_add_targets,shell,\
-	Library_macbe \
-))
-endif
-
 ifeq ($(filter DESKTOP,$(BUILD_TYPE)),DESKTOP)
 
 $(eval $(call gb_Module_add_targets,shell,\

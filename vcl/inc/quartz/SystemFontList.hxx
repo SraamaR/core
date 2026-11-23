@@ -22,14 +22,8 @@
 #include <sal/config.h>
 
 #include <premac.h>
-#ifdef MACOSX
-#include <ApplicationServices/ApplicationServices.h>
-#include <osx/osxvcltypes.h>
-#include <osx/salframe.h>
-#else
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
-#endif
 #include <postmac.h>
 
 #include <font/PhysicalFontFace.hxx>

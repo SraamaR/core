@@ -22,12 +22,8 @@
 #include <iostream>
 
 #include <premac.h>
-#ifdef MACOSX
-#include <ApplicationServices/ApplicationServices.h>
-#else
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
-#endif
 #include <postmac.h>
 
 #include <sal/types.h>

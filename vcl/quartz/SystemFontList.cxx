@@ -22,13 +22,8 @@
 
 #include <tools/long.hxx>
 
-
 #include <quartz/SystemFontList.hxx>
 #include <impfont.hxx>
-#ifdef MACOSX
-#include <osx/saldata.hxx>
-#include <osx/salinst.h>
-#endif
 #include <fontattributes.hxx>
 #include <font/PhysicalFontCollection.hxx>
 #include <quartz/CoreTextFontFace.hxx>

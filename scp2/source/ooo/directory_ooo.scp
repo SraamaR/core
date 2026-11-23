@@ -45,27 +45,6 @@ End
 #endif
 
 #ifdef MACOSX
-Directory gid_Dir_Bundle_Contents_Library_Spotlight
-    ParentID = gid_Dir_Bundle_Contents_Library;
-    HostName = "Spotlight";
-End
-#endif
-
-#ifdef MACOSX
-Directory gid_Dir_Bundle_Contents_Library_Spotlight_Bundle
-    ParentID = gid_Dir_Bundle_Contents_Library_Spotlight;
-    HostName = "OOoSpotlightImporter.mdimporter";
-End
-#endif
-
-#ifdef MACOSX
-Directory gid_Dir_Bundle_Contents_Library_Spotlight_Bundle_Contents
-    ParentID = gid_Dir_Bundle_Contents_Library_Spotlight_Bundle;
-    HostName = "Contents";
-End
-#endif
-
-#ifdef MACOSX
 Directory gid_Dir_Bundle_Contents_PlugIns
     ParentID = gid_Dir_Bundle_Contents;
     HostName = "PlugIns";
