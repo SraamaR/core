@@ -7,6 +7,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceColorChooserDialog.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceColorChooserDialog.hxx>
+#include <QtInstanceColorChooserDialog.moc>
+
+QtInstanceColorChooserDialog::QtInstanceColorChooserDialog(QColorDialog* pColorDialog)
+    : QtInstanceDialog(pColorDialog)
+    , m_pColorDialog(pColorDialog)
+{
+    assert(m_pColorDialog);
+}
+
+QtInstanceColorChooserDialog::~QtInstanceColorChooserDialog() {}
+
+void QtInstanceColorChooserDialog::set_color(const Color& rColor)
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread(
+        [this, &rColor] { m_pColorDialog->setCurrentColor(toQColor(rColor)); });
+}
+
+Color QtInstanceColorChooserDialog::get_color() const
+{
+    SolarMutexGuard g;
+
+    Color aColor;
+    GetQtInstance().RunInMainThread([&] { aColor = toColor(m_pColorDialog->currentColor()); });
+
+    return aColor;
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

@@ -7,6 +7,48 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceExpander.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceExpander.hxx>
+#include <QtInstanceExpander.moc>
+
+#include <vcl/qt/QtUtils.hxx>
+
+QtInstanceExpander::QtInstanceExpander(QtExpander* pExpander)
+    : QtInstanceWidget(pExpander)
+    , m_pExpander(pExpander)
+{
+    assert(m_pExpander);
+
+    connect(m_pExpander, &QtExpander::expandedChanged, this, [&] { signal_expanded(); });
+}
+
+void QtInstanceExpander::set_label(const OUString& rText)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread([&] { m_pExpander->setText(toQString(rText)); });
+}
+
+OUString QtInstanceExpander::get_label() const
+{
+    SolarMutexGuard g;
+    OUString sLabel;
+    GetQtInstance().RunInMainThread([&] { sLabel = toOUString(m_pExpander->text()); });
+    return sLabel;
+}
+
+bool QtInstanceExpander::get_expanded() const
+{
+    SolarMutexGuard g;
+    bool bExpanded = false;
+    GetQtInstance().RunInMainThread([&] { bExpanded = m_pExpander->isExpanded(); });
+    return bExpanded;
+}
+
+void QtInstanceExpander::set_expanded(bool bExpand)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread([&] { m_pExpander->setExpanded(bExpand); });
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

@@ -7,6 +7,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceSizeGroup.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceSizeGroup.hxx>
+#include <QtInstanceSizeGroup.moc>
+
+#include <sal/log.hxx>
+
+QtInstanceSizeGroup::QtInstanceSizeGroup(VclSizeGroupMode eMode)
+{
+    if (eMode != VclSizeGroupMode::NONE)
+        SAL_WARN("vcl.qt", "QtInstanceSizeGroup logic not implemented yet");
+}
+
+void QtInstanceSizeGroup::add_widget(weld::Widget*)
+{
+    SAL_WARN("vcl.qt", "QtInstanceSizeGroup logic not implemented yet");
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

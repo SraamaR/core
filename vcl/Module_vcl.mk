@@ -35,7 +35,7 @@ $(eval $(call gb_Module_add_targets,vcl,\
         StaticLibrary_vclmain \
         $(if $(or $(DISABLE_GUI),$(DISABLE_DYNLOADING)), \
             $(if $(filter EMSCRIPTEN,$(OS)), \
-                $(if $(ENABLE_QT5),Executable_vcldemo) \
+                $(if $(ENABLE_QT6),Executable_vcldemo) \
             ) \
         , \
             $(if $(filter LINUX MACOSX SOLARIS WNT %BSD,$(OS)), \
@@ -93,13 +93,6 @@ $(eval $(call gb_Module_add_targets,vcl,\
 ))
 endif
 
-ifneq ($(ENABLE_KF5),)
-$(eval $(call gb_Module_add_targets,vcl,\
-    CustomTarget_kf5_moc \
-    Library_vclplug_kf5 \
-))
-endif
-
 ifneq ($(ENABLE_KF6),)
 $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_kf6_moc \
@@ -108,25 +101,10 @@ $(eval $(call gb_Module_add_targets,vcl,\
 endif
 
 
-ifneq ($(ENABLE_QT5),)
-$(eval $(call gb_Module_add_targets,vcl,\
-    CustomTarget_qt5_moc \
-    Library_vclplug_qt5 \
-))
-endif
-
 ifneq ($(ENABLE_QT6),)
 $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_qt6_moc \
     Library_vclplug_qt6 \
-))
-endif
-
-ifneq ($(ENABLE_GTK3_KDE5),)
-$(eval $(call gb_Module_add_targets,vcl,\
-    CustomTarget_gtk3_kde5_moc \
-    Library_vclplug_gtk3_kde5 \
-    Executable_lo_kde5filepicker \
 ))
 endif
 

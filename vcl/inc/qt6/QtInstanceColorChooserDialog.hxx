@@ -7,6 +7,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceColorChooserDialog.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceDialog.hxx"
+
+#include <vcl/weld/ColorChooserDialog.hxx>
+
+#include <QtWidgets/QColorDialog>
+
+class QtInstanceColorChooserDialog : public QtInstanceDialog,
+                                     public virtual weld::ColorChooserDialog
+{
+    Q_OBJECT
+
+    QColorDialog* m_pColorDialog;
+
+public:
+    QtInstanceColorChooserDialog(QColorDialog* pColorDialog);
+    ~QtInstanceColorChooserDialog();
+
+    virtual void set_color(const Color& rColor) override;
+    virtual Color get_color() const override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

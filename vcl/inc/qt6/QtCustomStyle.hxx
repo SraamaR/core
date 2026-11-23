@@ -7,6 +7,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtCustomStyle.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <QtCore/QString>
+#include <QtGui/QPainter>
+#include <QtWidgets/QProxyStyle>
+#include <QtWidgets/QStyleOption>
+
+class QtCustomStyle : public QProxyStyle
+{
+    inline static bool m_bDefaultPaletteLoaded = false;
+    inline static bool m_bIsCustomStyleSet = false;
+
+public:
+    QtCustomStyle(){};
+
+    void drawPrimitive(PrimitiveElement element, const QStyleOption* option, QPainter* painter,
+                       const QWidget* widget = nullptr) const override;
+
+    static QPalette customPalette();
+    static QString CreateMenuBarStyleSheet();
+    static QPalette GetMenuPalette();
+    static bool IsSystemThemeChanged();
+
+    static void LoadCustomStyle(bool bDarkMode);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

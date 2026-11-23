@@ -7,6 +7,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceCalendar.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/Calendar.hxx>
+
+#include <QtWidgets/QCalendarWidget>
+
+class QtInstanceCalendar : public QtInstanceWidget, public virtual weld::Calendar
+{
+    Q_OBJECT
+
+    QCalendarWidget* m_pCalendarWidget;
+
+public:
+    QtInstanceCalendar(QCalendarWidget* pCalendarWidget);
+
+    virtual void set_date(const Date& rDate) override;
+    virtual Date get_date() const override;
+
+private Q_SLOTS:
+    void handleActivated();
+    void handleSelectionChanged();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

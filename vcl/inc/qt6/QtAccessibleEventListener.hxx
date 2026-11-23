@@ -7,6 +7,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtAccessibleEventListener.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtAccessibleWidget.hxx"
+
+#include <cppuhelper/implbase.hxx>
+
+#include <com/sun/star/accessibility/XAccessible.hpp>
+#include <com/sun/star/accessibility/XAccessibleEventListener.hpp>
+#include <com/sun/star/lang/EventObject.hpp>
+
+class QtAccessibleEventListener final
+    : public cppu::WeakImplHelper<css::accessibility::XAccessibleEventListener>
+{
+public:
+    explicit QtAccessibleEventListener(QtAccessibleWidget* pAccessibleWidget);
+
+    virtual void SAL_CALL
+    notifyEvent(const css::accessibility::AccessibleEventObject& rEvent) override;
+
+    virtual void SAL_CALL disposing(const css::lang::EventObject& Source) override;
+
+private:
+    QtAccessibleWidget* m_pAccessibleWidget;
+
+    static void HandleStateChangedEvent(QAccessibleInterface* pQAccessibleInterface,
+                                        const css::accessibility::AccessibleEventObject& rEvent);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

@@ -7,6 +7,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceProgressBar.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/ProgressBar.hxx>
+
+#include <QtWidgets/QProgressBar>
+
+class QtInstanceProgressBar : public QtInstanceWidget, public virtual weld::ProgressBar
+{
+    Q_OBJECT
+
+    QProgressBar* m_pProgressBar;
+
+public:
+    QtInstanceProgressBar(QProgressBar* pProgressBar);
+
+    virtual void set_percentage(int nValue) override;
+    virtual OUString get_text() const override;
+    virtual void set_text(const OUString& rText) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

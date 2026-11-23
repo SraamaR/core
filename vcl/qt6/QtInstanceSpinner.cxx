@@ -7,6 +7,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceSpinner.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceSpinner.hxx>
+#include <QtInstanceSpinner.moc>
+
+QtInstanceSpinner::QtInstanceSpinner(QProgressBar* pProgressBar)
+    : QtInstanceWidget(pProgressBar)
+{
+    assert(pProgressBar);
+
+    // This implementation relies on using a QProgressBar in indeterminate state,
+    // i.e. with range [0, 0] and only shows/hides that progress bar
+    // to make the animation (in)visible.
+    assert(pProgressBar->minimum() == 0 && pProgressBar->maximum() == 0
+           && "Progress bar is not in indeterminate state");
+}
+
+void QtInstanceSpinner::start() { show(); }
+
+void QtInstanceSpinner::stop() { hide(); }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

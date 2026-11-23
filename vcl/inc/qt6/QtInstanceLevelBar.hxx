@@ -7,6 +7,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceLevelBar.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/LevelBar.hxx>
+
+#include <QtWidgets/QProgressBar>
+
+class QtInstanceLevelBar : public QtInstanceWidget, public virtual weld::LevelBar
+{
+    Q_OBJECT
+
+    QProgressBar* m_pProgressBar;
+
+public:
+    QtInstanceLevelBar(QProgressBar* pProgressBar);
+
+    virtual void set_percentage(double fPercentage) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

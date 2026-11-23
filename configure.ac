@@ -950,7 +950,6 @@ freebsd*)
     using_freetype_fontconfig=yes
     using_unix_desktop=yes
     using_x11=yes
-    test_gtk3_kde5=no
     build_skia=yes
     PTHREAD_LIBS="-pthread -lpthread"
     _os=NetBSD
@@ -979,8 +978,6 @@ haiku*)
     using_unix_desktop=no
     using_x11=no
     test_gtk3=no
-    test_gtk3_kde5=no
-    test_kf5=yes
     test_kf6=yes
     enable_odk=no
     enable_coinmp=no
@@ -998,7 +995,6 @@ emscripten)
     using_unix_desktop=yes
     using_x11=yes
     test_openldap=no
-    test_qt5=yes
     test_split_debug=yes
     test_system_freetype=no
     enable_compiler_plugins=no
@@ -1028,23 +1024,17 @@ test "${test_dbus+set}" = set || test_dbus="$using_unix_desktop"
 test "${test_gstreamer_1_0+set}" = set || test_gstreamer_1_0="$using_unix_desktop"
 test "${test_gtk3+set}" = set || test_gtk3="$using_unix_desktop"
 test "${test_gtk4+set}" = set || test_gtk4="$using_unix_desktop"
-test "${test_kf5+set}" = set || test_kf5="$using_unix_desktop"
 test "${test_kf6+set}" = set || test_kf6="$using_unix_desktop"
-# don't handle test_qt5, so it can disable test_kf5 later
 test "${test_qt6+set}" = set || test_qt6="$using_unix_desktop"
 test "${using_headless_plugin+set}" = set || using_headless_plugin="$using_freetype_fontconfig"
 
-test "${test_gtk3_kde5+set}" != set -a "$test_kf5" = yes -a "$test_gtk3" = yes && test_gtk3_kde5="yes"
 # Make sure fontconfig and freetype test both either system or not
 test "${test_system_fontconfig+set}" != set -a "${test_system_freetype+set}" = set && test_system_fontconfig="$test_system_freetype"
 test "${test_system_freetype+set}" != set -a "${test_system_fontconfig+set}" = set && test_system_freetype="$test_system_fontconfig"
 
 # convenience / platform overriding "fixes"
 # Don't sort!
-test "$test_kf5" = yes -a "$test_qt5" = no && test_kf5=no
-test "$test_kf5" = yes && test_qt5=yes
 test "$test_gtk3" != yes && enable_gtk3=no
-test "$test_gtk3" != yes -o "$test_kf5" != yes && test_gtk3_kde5=no
 test "$test_win" != yes && enable_win=no
 test "$using_freetype_fontconfig" = no && using_headless_plugin=no
 test "$using_freetype_fontconfig" = yes && test_cairo=yes
@@ -1056,12 +1046,9 @@ disable_unix_desktop_tests()
     test_cups=no
     test_dbus=no
     test_gstreamer_1_0=no
-    test_gtk3_kde5=no
     test_gtk3=no
     test_gtk4=no
-    test_kf5=no
     test_kf6=no
-    test_qt5=no
     test_qt6=no
 }
 
@@ -1647,12 +1634,6 @@ libo_FUZZ_ARG_ENABLE(gio,
         [Determines whether to use the GIO support.]),
 ,test "${enable_gio+set}" = set || enable_gio=yes)
 
-AC_ARG_ENABLE(qt5,
-    AS_HELP_STRING([--enable-qt5],
-        [Determines whether to use Qt5 vclplug on platforms where Qt5 is
-         available.]),
-,)
-
 AC_ARG_ENABLE(qt6,
     AS_HELP_STRING([--enable-qt6],
         [Determines whether to use Qt6 vclplug on platforms where Qt6 is
@@ -1663,24 +1644,12 @@ AC_ARG_ENABLE(qt6-multimedia,
     AS_HELP_STRING([--disable-qt6-multimedia],
         [Determines whether to enable media playback using QtMultimedia when using the qt6/kf6 VCL plugins.]))
 
-AC_ARG_ENABLE(kf5,
-    AS_HELP_STRING([--enable-kf5],
-        [Determines whether to use Qt5/KF5 vclplug on platforms where Qt5 and
-         KF5 are available.]),
-,)
-
 AC_ARG_ENABLE(kf6,
     AS_HELP_STRING([--enable-kf6],
         [Determines whether to use KF6 vclplug on platforms where Qt6 and
          KF6 are available.]),
 ,)
 
-
-AC_ARG_ENABLE(gtk3_kde5,
-    AS_HELP_STRING([--enable-gtk3-kde5],
-        [Determines whether to use Gtk3 vclplug with KF5 file dialogs on
-         platforms where Gtk3, Qt5 and Plasma is available.]),
-,)
 
 AC_ARG_ENABLE(headless,
     AS_HELP_STRING([--enable-headless],
@@ -3067,8 +3036,6 @@ if test $_os != iOS -a $_os != Android -a "$enable_fuzzers" != "yes"; then
     fi
 fi
 
-# explicitly doesn't include enable_gtk3=no and enable_qt5=yes, so it should
-# also work with the default gtk3 plugin.
 if test "$enable_wasm_strip" = "yes"; then
     enable_avmedia=no
     enable_libcmis=no
@@ -5383,7 +5350,6 @@ if test "$using_unix_desktop" = yes; then
     else
         disable_unix_desktop_tests
         if test "$DISABLE_DYNLOADING" = TRUE; then
-            test_qt5=yes
             test_qt6=yes
         fi
     fi
@@ -5990,14 +5956,6 @@ if test $_os != "WINNT" -a $_os != "Darwin"; then
     fi
 fi
 AC_SUBST(ENABLE_OOENV)
-
-if test "$test_kf5" = "yes" -a "$enable_kf5" = "yes"; then
-    if test "$enable_qt5" = "no"; then
-        AC_MSG_ERROR([KF5 support depends on QT5, so it conflicts with --disable-qt5])
-    else
-        enable_qt5=yes
-    fi
-fi
 
 if test "$test_kf6" = "yes" -a "$enable_kf6" = "yes"; then
     if test "$enable_qt6" = "no"; then
@@ -11929,11 +11887,8 @@ dnl ===================================================================
 R=""
 
 libo_ENABLE_VCLPLUG([gtk3])
-libo_ENABLE_VCLPLUG([gtk3_kde5])
 libo_ENABLE_VCLPLUG([gtk4])
-libo_ENABLE_VCLPLUG([kf5])
 libo_ENABLE_VCLPLUG([kf6])
-libo_ENABLE_VCLPLUG([qt5])
 libo_ENABLE_VCLPLUG([qt6])
 libo_ENABLE_VCLPLUG([win])
 
@@ -11966,7 +11921,7 @@ dnl ===================================================================
 GTK3_CFLAGS=""
 GTK3_LIBS=""
 ENABLE_GTKTILEDVIEWER=""
-if test "$test_gtk3" = yes -a "x$enable_gtk3" = "xyes" -o "x$enable_gtk3_kde5" = "xyes"; then
+if test "$test_gtk3" = yes -a "x$enable_gtk3" = "xyes"; then
     if test "$with_system_cairo" = no; then
         add_warning 'Non-system cairo combined with gtk3 is known to cause trouble (eg. broken image in the splashscreen). Use --with-system-cairo unless you know what you are doing.'
     fi
@@ -12025,7 +11980,7 @@ AC_SUBST(GTK4_LIBS)
 AC_SUBST(GTK4_CFLAGS)
 
 if test "$enable_introspection" = yes; then
-    if test "$ENABLE_GTK3" = "TRUE" -o "$ENABLE_GTK3_KDE5" = "TRUE"; then
+    if test "$ENABLE_GTK3" = "TRUE"; then
         GOBJECT_INTROSPECTION_REQUIRE(INTROSPECTION_REQUIRED_VERSION)
     else
         AC_MSG_ERROR([--enable-introspection requires --enable-gtk3])
@@ -12210,7 +12165,7 @@ AC_SUBST(SYSTEM_BLUEZ)
 dnl ===================================================================
 dnl Check whether to enable GIO support
 dnl ===================================================================
-if test "$ENABLE_GTK4" = "TRUE" -o "$ENABLE_GTK3" = "TRUE" -o "$ENABLE_GTK3_KDE5" = "TRUE"; then
+if test "$ENABLE_GTK4" = "TRUE" -o "$ENABLE_GTK3" = "TRUE"; then
     AC_MSG_CHECKING([whether to enable GIO support])
     if test "$_os" != "WINNT" -a "$_os" != "Darwin" -a "$enable_gio" = "yes"; then
         dnl Need at least 2.26 for the dbus support.
@@ -13270,7 +13225,7 @@ AC_SUBST(ENABLE_SCRIPTING_JAVASCRIPT)
 AC_SUBST(SYSTEM_RHINO)
 AC_SUBST(RHINO_JAR)
 
-# This is only used in Qt5/Qt6/KF5/KF6 checks to determine if /usr/lib64
+# This is only used in Qt6/KF6 checks to determine if /usr/lib64
 # paths should be added to library search path. So let's put all 64-bit
 # platforms there.
 supports_multilib=
@@ -13283,160 +13238,6 @@ x86_64 | powerpc64 | powerpc64le | s390x | aarch64 | mips64 | mips64el | loongar
 *)
     ;;
 esac
-
-dnl ===================================================================
-dnl QT5 Integration
-dnl ===================================================================
-
-QT5_CFLAGS=""
-QT5_LIBS=""
-QT5_GOBJECT_CFLAGS=""
-QT5_GOBJECT_LIBS=""
-QT5_HAVE_GOBJECT=""
-QT5_PLATFORMS_SRCDIR=""
-if test \( "$test_kf5" = "yes" -a "$ENABLE_KF5" = "TRUE" \) -o \
-        \( "$test_qt5" = "yes" -a "$ENABLE_QT5" = "TRUE" \) -o \
-        \( "$test_gtk3_kde5" = "yes" -a "$ENABLE_GTK3_KDE5" = "TRUE" \)
-then
-    qt5_incdirs="$QT5INC /usr/include/qt5 /usr/include $x_includes"
-    qt5_libdirs="$QT5LIB /usr/lib/qt5 /usr/lib $x_libraries"
-
-    if test -n "$supports_multilib"; then
-        qt5_libdirs="$qt5_libdirs /usr/lib64/qt5 /usr/lib64/qt /usr/lib64"
-    fi
-
-    qt5_test_include="QtWidgets/qapplication.h"
-    if test "$_os" = "Emscripten"; then
-        qt5_test_library="libQt5Widgets.a"
-    else
-        qt5_test_library="libQt5Widgets.so"
-    fi
-
-    dnl Check for qmake5
-    if test -n "$QT5DIR"; then
-        AC_PATH_PROG(QMAKE5, [qmake], no, [$QT5DIR/bin])
-    else
-        AC_PATH_PROGS(QMAKE5, [qmake-qt5 qmake], no)
-    fi
-    if test "$QMAKE5" = "no"; then
-        AC_MSG_ERROR([Qmake not found.  Please specify the root of your Qt5 installation by exporting QT5DIR before running "configure".])
-    else
-        qmake5_test_ver="`$QMAKE5 -v 2>&1 | $SED -n -e 's/^Using Qt version \(5\.[[0-9.]]\+\).*$/\1/p'`"
-        if test -z "$qmake5_test_ver"; then
-            AC_MSG_ERROR([Wrong qmake for Qt5 found. Please specify the root of your Qt5 installation by exporting QT5DIR before running "configure".])
-        fi
-        qmake5_minor_version="`echo $qmake5_test_ver | cut -d. -f2`"
-        qt5_minimal_minor="15"
-        if test "$qmake5_minor_version" -lt "$qt5_minimal_minor"; then
-            AC_MSG_ERROR([The minimal supported Qt5 version is 5.${qt5_minimal_minor}, but your 'qmake -v' reports Qt5 version $qmake5_test_ver.])
-        else
-            AC_MSG_NOTICE([Detected Qt5 version: $qmake5_test_ver])
-        fi
-    fi
-
-    qt5_incdirs="`$QMAKE5 -query QT_INSTALL_HEADERS` $qt5_incdirs"
-    qt5_libdirs="`$QMAKE5 -query QT_INSTALL_LIBS` $qt5_libdirs"
-    qt5_platformsdir="`$QMAKE5 -query QT_INSTALL_PLUGINS`/platforms"
-    QT5_PLATFORMS_SRCDIR="$qt5_platformsdir"
-
-    AC_MSG_CHECKING([for Qt5 headers])
-    qt5_incdir="no"
-    for inc_dir in $qt5_incdirs; do
-        if test -r "$inc_dir/$qt5_test_include"; then
-            qt5_incdir="$inc_dir"
-            break
-        fi
-    done
-    AC_MSG_RESULT([$qt5_incdir])
-    if test "x$qt5_incdir" = "xno"; then
-        AC_MSG_ERROR([Qt5 headers not found.  Please specify the root of your Qt5 installation by exporting QT5DIR before running "configure".])
-    fi
-    # check for scenario: qt5-qtbase-devel-*.86_64 installed but host is i686
-    AC_LANG_PUSH([C++])
-    save_CPPFLAGS=$CPPFLAGS
-    CPPFLAGS="${CPPFLAGS} -I${qt5_incdir}"
-    AC_CHECK_HEADER(QtCore/qconfig.h, [],
-        [AC_MSG_ERROR(qconfig.h header not found.)], [])
-    CPPFLAGS=$save_CPPFLAGS
-    AC_LANG_POP([C++])
-
-    AC_MSG_CHECKING([for Qt5 libraries])
-    qt5_libdir="no"
-    for lib_dir in $qt5_libdirs; do
-        if test -r "$lib_dir/$qt5_test_library"; then
-            qt5_libdir="$lib_dir"
-            break
-        fi
-    done
-    AC_MSG_RESULT([$qt5_libdir])
-    if test "x$qt5_libdir" = "xno"; then
-        AC_MSG_ERROR([Qt5 libraries not found.  Please specify the root of your Qt5 installation by exporting QT5DIR before running "configure".])
-    fi
-
-    if test "$_os" = "Emscripten"; then
-        if test ! -f "$QT5_PLATFORMS_SRCDIR"/wasm_shell.html ; then
-            QT5_PLATFORMS_SRCDIR="${QT5_PLATFORMS_SRCDIR/plugins/src\/plugins}/wasm"
-        fi
-        if test ! -f "${qt5_platformsdir}"/libqwasm.a -o ! -f "$QT5_PLATFORMS_SRCDIR"/wasm_shell.html; then
-            AC_MSG_ERROR([No Qt5 WASM QPA plugin found in ${qt5_platformsdir} or ${QT5_PLATFORMS_SRCDIR}])
-        fi
-
-        EMSDK_LLVM_NM="$(em-config LLVM_ROOT)"/llvm-nm
-        if ! test -x "$EMSDK_LLVM_NM"; then
-            AC_MSG_ERROR([Missing llvm-nm expected to be found at "$EMSDK_LLVM_NM".])
-        fi
-        if test ! -f "${qt5_libdir}"/libQt5Gui.a; then
-            AC_MSG_ERROR([No Qt5 WASM libQt5Gui.a in ${qt5_libdir}])
-        fi
-        QT5_WASM_SJLJ="`${EMSDK_LLVM_NM} "${qt5_libdir}"/libQt5Gui.a 2>/dev/null | $GREP emscripten_longjmp`"
-        if test -n "$QT5_WASM_SJLJ"; then
-            AC_MSG_ERROR(['emscripten_longjmp' symbol found in libQt5Gui.a (missing '-s SUPPORT_LONGJMP=wasm'). See static/README.wasm.md.])
-        fi
-    fi
-
-    QT5_CFLAGS="-I$qt5_incdir -DQT_NO_VERSION_TAGGING"
-    QT5_CFLAGS=$(printf '%s' "$QT5_CFLAGS" | sed -e "s/-I/${ISYSTEM?}/g")
-    QT5_LIBS="-L$qt5_libdir -lQt5Core -lQt5Gui -lQt5Widgets"
-    if test "$_os" = "Emscripten"; then
-        QT5_LIBS="$QT5_LIBS -lqtpcre2 -lQt5EventDispatcherSupport -lQt5FontDatabaseSupport -L${qt5_platformsdir} -lqwasm"
-    fi
-
-    if test "$USING_X11" = TRUE; then
-        if ! test -r "$qt5_incdir/QtX11Extras/QX11Info"; then
-            AC_MSG_ERROR(['Qt 5 QtX11Extras headers not found.'])
-        fi
-
-        PKG_CHECK_MODULES(QT5_XCB,[xcb],,[AC_MSG_ERROR([XCB not found, which is needed for correct app grouping in X11.])])
-        QT5_CFLAGS="$QT5_CFLAGS $QT5_XCB_CFLAGS $QT5_XCB_ICCCM_CFLAGS"
-        QT5_LIBS="$QT5_LIBS $QT5_XCB_LIBS $QT5_XCB_ICCCM_LIBS -lQt5X11Extras"
-        QT5_USING_X11=1
-        AC_DEFINE(QT5_USING_X11)
-    fi
-
-    dnl Check for Meta Object Compiler
-
-    AC_PATH_PROGS( MOC5, [moc-qt5 moc], no, [`dirname $qt5_libdir`/bin:$QT5DIR/bin:$PATH])
-    if test "$MOC5" = "no"; then
-        AC_MSG_ERROR([Qt Meta Object Compiler not found.  Please specify
-the root of your Qt installation by exporting QT5DIR before running "configure".])
-    fi
-
-    if test "$test_gstreamer_1_0" = yes; then
-        PKG_CHECK_MODULES(QT5_GOBJECT,[gobject-2.0], [
-                QT5_HAVE_GOBJECT=1
-                AC_DEFINE(QT5_HAVE_GOBJECT)
-            ],
-            AC_MSG_WARN([[No GObject found, can't use QWidget GStreamer sink on wayland!]])
-        )
-    fi
-fi
-AC_SUBST(QT5_CFLAGS)
-AC_SUBST(QT5_LIBS)
-AC_SUBST(MOC5)
-AC_SUBST(QT5_GOBJECT_CFLAGS)
-AC_SUBST(QT5_GOBJECT_LIBS)
-AC_SUBST(QT5_HAVE_GOBJECT)
-AC_SUBST(QT5_PLATFORMS_SRCDIR)
 
 dnl ===================================================================
 dnl QT6 Integration
@@ -13641,94 +13442,6 @@ AC_SUBST(QT6_LIBDIR)
 AC_SUBST(MOC6)
 AC_SUBST(QT6_PLATFORMS_SRCDIR)
 AC_SUBST(ENABLE_QT6_MULTIMEDIA)
-
-dnl ===================================================================
-dnl KF5 Integration
-dnl ===================================================================
-
-KF5_CFLAGS=""
-KF5_LIBS=""
-KF5_CONFIG="kf5-config"
-if test \( "$test_kf5" = "yes" -a "$ENABLE_KF5" = "TRUE" \) -o \
-        \( "$test_gtk3_kde5" = "yes" -a "$ENABLE_GTK3_KDE5" = "TRUE" \)
-then
-    if test "$OS" = "HAIKU"; then
-        haiku_arch="`echo $RTL_ARCH | tr X x`"
-        kf5_haiku_incdirs="`findpaths -c ' ' -a $haiku_arch B_FIND_PATH_HEADERS_DIRECTORY`"
-        kf5_haiku_libdirs="`findpaths -c ' ' -a $haiku_arch B_FIND_PATH_DEVELOP_LIB_DIRECTORY`"
-    fi
-
-    kf5_incdirs="$KF5INC /usr/include $kf5_haiku_incdirs $x_includes"
-    kf5_libdirs="$KF5LIB /usr/lib /usr/lib/kf5 /usr/lib/kf5/devel $kf5_haiku_libdirs $x_libraries"
-    if test -n "$supports_multilib"; then
-        kf5_libdirs="$kf5_libdirs /usr/lib64 /usr/lib64/kf5 /usr/lib64/kf5/devel"
-    fi
-
-    kf5_test_include="KF5/KIOFileWidgets/KFileWidget"
-    kf5_test_library="libKF5KIOFileWidgets.so"
-    kf5_libdirs="$qt5_libdir $kf5_libdirs"
-
-    dnl kf5 KDE4 support compatibility installed
-    AC_PATH_PROG( KF5_CONFIG, $KF5_CONFIG, no, )
-    if test "$KF5_CONFIG" != "no"; then
-        kf5_incdirs="`$KF5_CONFIG --path include` $kf5_incdirs"
-        kf5_libdirs="`$KF5_CONFIG --path lib` $kf5_libdirs"
-    fi
-
-    dnl Check for KF5 headers
-    AC_MSG_CHECKING([for KF5 headers])
-    kf5_incdir="no"
-    for kf5_check in $kf5_incdirs; do
-        if test -r "$kf5_check/$kf5_test_include"; then
-            kf5_incdir="$kf5_check/KF5"
-            break
-        fi
-    done
-    AC_MSG_RESULT([$kf5_incdir])
-    if test "x$kf5_incdir" = "xno"; then
-        AC_MSG_ERROR([KF5 headers not found.  Please specify the root of your KF5 installation by exporting KF5DIR before running "configure".])
-    fi
-
-    dnl Check for KF5 libraries
-    AC_MSG_CHECKING([for KF5 libraries])
-    kf5_libdir="no"
-    for kf5_check in $kf5_libdirs; do
-        if test -r "$kf5_check/$kf5_test_library"; then
-            kf5_libdir="$kf5_check"
-            break
-        fi
-    done
-
-    AC_MSG_RESULT([$kf5_libdir])
-    if test "x$kf5_libdir" = "xno"; then
-        AC_MSG_ERROR([KF5 libraries not found.  Please specify the root of your KF5 installation by exporting KF5DIR before running "configure".])
-    fi
-
-    KF5_CFLAGS="-I$kf5_incdir -I$kf5_incdir/KCoreAddons -I$kf5_incdir/KI18n -I$kf5_incdir/KConfigCore -I$kf5_incdir/KWindowSystem -I$kf5_incdir/KIOCore -I$kf5_incdir/KIOWidgets -I$kf5_incdir/KIOFileWidgets -I$qt5_incdir -I$qt5_incdir/QtCore -I$qt5_incdir/QtGui -I$qt5_incdir/QtWidgets -DQT_NO_VERSION_TAGGING"
-    KF5_LIBS="-L$kf5_libdir -lKF5CoreAddons -lKF5I18n -lKF5ConfigCore -lKF5WindowSystem -lKF5KIOCore -lKF5KIOWidgets -lKF5KIOFileWidgets -L$qt5_libdir -lQt5Core -lQt5Gui -lQt5Widgets"
-    KF5_CFLAGS=$(printf '%s' "$KF5_CFLAGS" | sed -e "s/-I/${ISYSTEM?}/g")
-
-    if test "$USING_X11" = TRUE; then
-        KF5_LIBS="$KF5_LIBS -lQt5X11Extras"
-    fi
-
-    AC_LANG_PUSH([C++])
-    save_CXXFLAGS=$CXXFLAGS
-    CXXFLAGS="$CXXFLAGS $KF5_CFLAGS"
-    AC_MSG_CHECKING([whether KDE is >= 5.0])
-       AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <kcoreaddons_version.h>
-
-int main(int argc, char **argv) {
-       static_assert(KCOREADDONS_VERSION_MAJOR == 5);
-       return 0;
-}
-       ]])],[AC_MSG_RESULT([yes])],[AC_MSG_ERROR([KDE version too old])],[])
-    CXXFLAGS=$save_CXXFLAGS
-    AC_LANG_POP([C++])
-fi
-AC_SUBST(KF5_CFLAGS)
-AC_SUBST(KF5_LIBS)
 
 dnl ===================================================================
 dnl KF6 Integration

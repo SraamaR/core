@@ -7,6 +7,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceTextWidget.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceTextWidget.hxx>
+#include <QtInstanceTextWidget.moc>
+
+QtInstanceTextWidget::QtInstanceTextWidget(QWidget* pWidget)
+    : QtInstanceWidget(pWidget)
+{
+}
+
+void QtInstanceTextWidget::set_font(const vcl::Font& rFont) { setFont(rFont); }
+
+void QtInstanceTextWidget::set_font_color(const Color& rColor) { setFontColor(rColor); }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

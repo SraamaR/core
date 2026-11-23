@@ -15,7 +15,7 @@
  *
  * Helpers only needed in a specific module should be defined
  * in that module instead, e.g. helper functions only relevant for the Qt-based
- * VCL plugins are defined in `vcl/inc/qt5/QtTools.hxx`.
+ * VCL plugins are defined in `vcl/inc/qt6/QtTools.hxx`.
  **/
 
 #include <sal/config.h>

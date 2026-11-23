@@ -7,6 +7,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtSystem.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <salsys.hxx>
+
+class QtSystem final : public SalSystem
+{
+public:
+    virtual unsigned int GetDisplayScreenCount() override;
+    virtual AbsoluteScreenPixelRectangle
+    GetDisplayScreenPosSizePixel(unsigned int nScreen) override;
+    virtual void ShowNativeMessageBox(const OUString& rTitle, const OUString& rMessage) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

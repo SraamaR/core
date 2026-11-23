@@ -7,6 +7,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtXWindow.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/TransportAsXWindow.hxx>
+
+class QtXWindow final : public weld::TransportAsXWindow
+{
+    QWidget* m_pQWidget;
+
+public:
+    QtXWindow(QtInstanceWidget* pQtInstanceWindow);
+
+    QWidget* getQWidget() { return m_pQWidget; }
+
+    virtual void clear() override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

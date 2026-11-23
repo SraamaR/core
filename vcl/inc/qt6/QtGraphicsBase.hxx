@@ -7,6 +7,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtGraphicsBase.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtFrame.hxx"
+#include "QtInstance.hxx"
+
+#include <sal/types.h>
+
+#include <QtWidgets/QApplication>
+
+class QtGraphicsBase
+{
+    QtFrame* const m_pFrame;
+    qreal m_fDPR;
+
+public:
+    QtGraphicsBase(QtFrame* pFrame)
+        : m_pFrame(pFrame)
+        , m_fDPR(qApp ? GetQtInstance().EmscriptenLightweightRunInMainThread(
+                            [] { return qApp->devicePixelRatio(); })
+                      : 1.0)
+    {
+    }
+
+    void setDevicePixelRatioF(qreal fDPR) { m_fDPR = fDPR; }
+
+    qreal devicePixelRatioF() const { return m_fDPR; }
+
+protected:
+    QtFrame* GetFrame() const { return m_pFrame; }
+    void ImplGetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

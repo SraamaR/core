@@ -7,6 +7,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstancePaned.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/Paned.hxx>
+
+#include <QtWidgets/QSplitter>
+
+class QtInstancePaned : public QtInstanceWidget, public virtual weld::Paned
+{
+    Q_OBJECT
+
+public:
+    QtInstancePaned(QSplitter* pSplitter);
+
+    virtual void set_position(int nPos) override;
+    virtual int get_position() const override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

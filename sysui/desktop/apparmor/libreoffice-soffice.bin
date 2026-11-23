@@ -228,34 +228,31 @@ profile libreoffice-soffice @{libo_inst_dir}/program/soffice.bin flags=(complain
   # probably should become a subprofile like gpg above, but then it doesn't
   # work either as it tries to access stuff only allowed above...
   owner @{HOME}/.config/kdeglobals r,
-  /usr/lib/libreoffice/program/lo_kde5filepicker rPUx,
-  /usr/share/qt5/translations/* r,
-  /usr/lib/*/qt5/plugins/** rm,
+  /usr/share/qt6/translations/* r,
+  /usr/lib/*/qt6/plugins/** rm,
   /usr/share/plasma/look-and-feel/**/contents/defaults r,
 
   # TODO: remove when rules are available in abstractions/kde
-  owner @{HOME}/.cache/ksycoca5_??_* r, # KDE System Configuration Cache
+  owner @{HOME}/.cache/ksycoca6_??_* r, # KDE System Configuration Cache
   owner @{HOME}/.config/baloofilerc r, # indexing options (excludes, etc), used by KFileWidget
   owner @{HOME}/.config/dolphinrc r, # settings used by KFileWidget
   owner @{HOME}/.config/kde.org/libphonon.conf r, # for KNotifications::sendEvent()
-  owner @{HOME}/.config/klanguageoverridesrc r, # per-application languages, for KDEPrivate::initializeLanguages() from libKF5XmlGui.so
+  owner @{HOME}/.config/klanguageoverridesrc r, # per-application languages, for KDEPrivate::initializeLanguages() from libKF6XmlGui.so
   owner @{HOME}/.config/trashrc r, # user by KFileWidget
-  /usr/share/knotifications5/*.notifyrc r, # KNotification::sendEvent
+  /usr/share/knotifications6/*.notifyrc r, # KNotification::sendEvent
 
   # TODO: remove when rules are available in abstractions/kde-write-icon-cache or similar
   owner @{HOME}/.cache/icon-cache.kcache rw, # for KIconLoader
 
-  # TODO: remove when rules are available in abstractions/kdeframeworks5 or similar
-  /usr/share/kservices5/*.protocol r,
 
-  # TODO: use qt5-settings-write abstraction when it is available
+  # TODO: use qt-settings-write abstraction when it is available
   owner @{HOME}/.config/#[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] rw,
   owner @{HOME}/.config/QtProject.conf rw,
   owner @{HOME}/.config/QtProject.conf.?????? l -> @{HOME}/.config/#[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9],
   owner @{HOME}/.config/QtProject.conf.?????? rw, # for temporary files like QtProject.conf.Aqrgeb
   owner @{HOME}/.config/QtProject.conf.lock rwk,
 
-  # TODO: use qt5-compose-cache-write abstraction when it is available
+  # TODO: use qt-compose-cache-write abstraction when it is available
   owner @{HOME}/.cache/qt_compose_cache_{little,big}_endian_* r,
 
   # TODO: use recent-documents-write abstraction when it is available

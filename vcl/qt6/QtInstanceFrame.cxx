@@ -7,6 +7,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceFrame.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceFrame.hxx>
+#include <QtInstanceFrame.moc>
+
+#include <vcl/qt/QtUtils.hxx>
+
+QtInstanceFrame::QtInstanceFrame(QGroupBox* pGroupBox)
+    : QtInstanceContainer(pGroupBox)
+    , m_pGroupBox(pGroupBox)
+{
+    assert(m_pGroupBox);
+}
+
+void QtInstanceFrame::set_label(const OUString& rText)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread(
+        [&] { m_pGroupBox->setTitle(vclToQtStringWithAccelerator(rText)); });
+}
+
+OUString QtInstanceFrame::get_label() const
+{
+    SolarMutexGuard g;
+
+    OUString sLabel;
+    GetQtInstance().RunInMainThread(
+        [&] { sLabel = qtToVclStringWithAccelerator(m_pGroupBox->title()); });
+
+    return sLabel;
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

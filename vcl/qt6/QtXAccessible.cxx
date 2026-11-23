@@ -7,6 +7,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtXAccessible.cxx"
+#include <sal/config.h>
+
+#include <QtXAccessible.hxx>
+#include <QtXAccessible.moc>
+
+#include <utility>
+
+using namespace css::accessibility;
+using namespace css::uno;
+
+QtXAccessible::QtXAccessible(Reference<XAccessible> xAccessible)
+    : m_xAccessible(std::move(xAccessible))
+{
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

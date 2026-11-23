@@ -7,6 +7,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceTreeIter.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <vcl/weld/TreeIter.hxx>
+
+#include <QtGui/QStandardItemModel>
+
+class QtInstanceTreeIter final : public weld::TreeIter
+{
+    QPersistentModelIndex m_aModelIndex;
+
+public:
+    explicit QtInstanceTreeIter(const weld::ItemView& rItemView,
+                                const QPersistentModelIndex& rModelIndex);
+    virtual bool equal(const TreeIter& rOther) const override;
+
+    const QPersistentModelIndex& modelIndex() const { return m_aModelIndex; }
+    void setModelIndex(const QPersistentModelIndex& rIndex) { m_aModelIndex = rIndex; }
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

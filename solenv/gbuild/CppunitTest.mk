@@ -265,10 +265,7 @@ ifeq ($(USING_UNIX_DESKTOP),TRUE)
 $(call gb_CppunitTest_get_target,$(1)) : $(if $(filter $(2),$(true)),, \
         $(if $(ENABLE_GTK3),$(call gb_Library_get_target,vclplug_gtk3)) \
         $(if $(ENABLE_GTK4),$(call gb_Library_get_target,vclplug_gtk4)) \
-        $(if $(ENABLE_GTK3_KDE5),$(call gb_Library_get_target,vclplug_gtk3_kde5)) \
-        $(if $(ENABLE_KF5),$(call gb_Library_get_target,vclplug_kf5)) \
         $(if $(ENABLE_KF6),$(call gb_Library_get_target,vclplug_kf6)) \
-        $(if $(ENABLE_QT5),$(call gb_Library_get_target,vclplug_qt5)) \
         $(if $(ENABLE_QT6),$(call gb_Library_get_target,vclplug_qt6)) \
 	 )
 endif

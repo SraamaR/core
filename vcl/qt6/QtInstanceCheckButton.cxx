@@ -7,6 +7,63 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceCheckButton.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceCheckButton.hxx>
+#include <QtInstanceCheckButton.moc>
+
+#include <vcl/qt/QtUtils.hxx>
+
+QtInstanceCheckButton::QtInstanceCheckButton(QCheckBox* pCheckBox)
+    : QtInstanceWidget(pCheckBox)
+    , m_pCheckBox(pCheckBox)
+{
+    assert(m_pCheckBox);
+    connect(m_pCheckBox, &QCheckBox::toggled, this, &QtInstanceCheckButton::handleToggled);
+}
+
+void QtInstanceCheckButton::do_set_state(TriState eState)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread([&] {
+        m_pCheckBox->setTristate(eState == TRISTATE_INDET);
+        m_pCheckBox->setCheckState(toQtCheckState(eState));
+    });
+}
+
+TriState QtInstanceCheckButton::get_state() const
+{
+    SolarMutexGuard g;
+    TriState eState = TRISTATE_INDET;
+    GetQtInstance().RunInMainThread([&] { eState = toVclTriState(m_pCheckBox->checkState()); });
+    return eState;
+}
+
+void QtInstanceCheckButton::set_label(const OUString& rText)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread(
+        [&] { m_pCheckBox->setText(vclToQtStringWithAccelerator(rText)); });
+}
+OUString QtInstanceCheckButton::get_label() const
+{
+    SolarMutexGuard g;
+    OUString sLabel;
+    GetQtInstance().RunInMainThread(
+        [&] { sLabel = qtToVclStringWithAccelerator(m_pCheckBox->text()); });
+    return sLabel;
+}
+
+void QtInstanceCheckButton::QtInstanceCheckButton::set_label_wrap(bool /*bWrap*/)
+{
+    // https://bugreports.qt.io/browse/QTBUG-5370
+    SAL_WARN("vcl.qt", "Qt doesn't support word wrap in check boxes (see QTBUG-5370)");
+}
+
+void QtInstanceCheckButton::handleToggled()
+{
+    SolarMutexGuard g;
+    signal_toggled();
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

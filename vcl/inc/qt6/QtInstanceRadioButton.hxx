@@ -7,6 +7,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceRadioButton.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/RadioButton.hxx>
+
+#include <QtCore/QObject>
+#include <QtWidgets/QRadioButton>
+
+class QtInstanceRadioButton : public QtInstanceWidget, public virtual weld::RadioButton
+{
+    Q_OBJECT
+
+    QRadioButton* m_pRadioButton;
+
+public:
+    QtInstanceRadioButton(QRadioButton* pRadioButton);
+
+    // weld::Toggleable methods
+    virtual void do_set_active(bool bActive) override;
+    virtual bool get_active() const override;
+
+    // weld::RadioButton methods
+    virtual void set_label(const OUString& rText) override;
+    virtual OUString get_label() const override;
+    virtual void set_label_wrap(bool bWrap) override;
+
+private Q_SLOTS:
+    void handleToggled();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

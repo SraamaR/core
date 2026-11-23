@@ -7,6 +7,61 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstancePopover.cxx"
+#include <sal/config.h>
+
+#include <QtInstancePopover.hxx>
+#include <QtInstancePopover.moc>
+
+QtInstancePopover::QtInstancePopover(QWidget* pWidget)
+    : QtInstanceContainer(pWidget)
+{
+}
+
+void QtInstancePopover::popup_at_rect(weld::Widget* pParent, const tools::Rectangle& rRect,
+                                      weld::Placement ePlace)
+{
+    SolarMutexGuard g;
+
+    assert(ePlace == weld::Placement::Under && "placement type not supported yet");
+    (void)ePlace;
+
+    GetQtInstance().RunInMainThread([&] {
+        QWidget* pPopoverWidget = getQWidget();
+        pPopoverWidget->adjustSize();
+        QWidget* pParentWidget = QtInstance::GetQWidget(pParent);
+        QPoint aPos = pParentWidget->mapToGlobal(toQPoint(rRect.BottomLeft()));
+        aPos.setX(aPos.x() + rRect.GetWidth() - pPopoverWidget->width() / 2);
+
+        pPopoverWidget->move(aPos);
+        pPopoverWidget->show();
+    });
+}
+
+void QtInstancePopover::popdown()
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread([&] { getQWidget()->hide(); });
+}
+
+void QtInstancePopover::resize_to_request() { assert(false && "Not implemented yet"); }
+
+bool QtInstancePopover::eventFilter(QObject* pObject, QEvent* pEvent)
+{
+    if (pObject == getQWidget() && pEvent->type() == QEvent::Close)
+    {
+        // signal that the popup was closed when control returns to the
+        // main loop (at which point the event to close the popup has
+        // actually been processed)
+        QMetaObject::invokeMethod(this,
+                                  [this] {
+                                      SolarMutexGuard g;
+                                      signal_closed();
+                                  },
+                                  Qt::QueuedConnection);
+    }
+
+    return QtInstanceWidget::eventFilter(pObject, pEvent);
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

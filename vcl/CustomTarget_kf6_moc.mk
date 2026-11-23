@@ -12,14 +12,8 @@ $(eval $(call gb_CustomTarget_CustomTarget,vcl/unx/kf6))
 $(call gb_CustomTarget_get_target,vcl/unx/kf6) : \
 	$(gb_CustomTarget_workdir)/vcl/unx/kf6/KFFilePicker.moc
 
-# For now, the headers in vcl/unx/kf6 just '#include' the ones
-# in 'vcl/unx/kf5'.
-# Since moc does not process classes from the included headers,
-# it needs to be run on the headers in the kf5 dir.
-# That will have to be adapted in case the kf6 VCL plugin
-# uses "own" headers
 $(gb_CustomTarget_workdir)/vcl/unx/kf6/%.moc : \
-		$(SRCDIR)/vcl/unx/kf5/%.hxx \
+		$(SRCDIR)/vcl/unx/kf6/%.hxx \
 		| $(gb_CustomTarget_workdir)/vcl/unx/kf6/.dir
 	$(call gb_Output_announce,$(subst $(WORKDIR)/,,$@),$(true),MOC,1)
 	$(call gb_Trace_StartRange,$(subst $(WORKDIR)/,,$@),MOC)

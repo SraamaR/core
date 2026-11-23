@@ -7,6 +7,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceTextWidget.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/TextWidget.hxx>
+
+class QtInstanceTextWidget : public QtInstanceWidget, public virtual weld::TextWidget
+{
+    Q_OBJECT
+
+public:
+    QtInstanceTextWidget(QWidget* pWidget);
+
+    virtual void set_font(const vcl::Font& rFont) override;
+    virtual void set_font_color(const Color& rColor) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

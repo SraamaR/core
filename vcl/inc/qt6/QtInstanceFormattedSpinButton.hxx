@@ -7,6 +7,48 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceFormattedSpinButton.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtDoubleSpinBox.hxx"
+#include "QtInstanceEntry.hxx"
+
+#include <vcl/weld/EntryFormatter.hxx>
+#include <vcl/weld/FormattedSpinButton.hxx>
+
+class QtInstanceFormattedSpinButton : public QtInstanceEntry,
+                                      public virtual weld::FormattedSpinButton
+{
+    Q_OBJECT
+
+    QtDoubleSpinBox* m_pSpinBox;
+    std::unique_ptr<weld::EntryFormatter> m_xOwnFormatter;
+    weld::EntryFormatter* m_pFormatter;
+
+    bool m_bInSetSingleStep = false;
+
+public:
+    QtInstanceFormattedSpinButton(QtDoubleSpinBox* pSpinBox);
+    virtual ~QtInstanceFormattedSpinButton();
+
+    virtual QWidget* getQWidget() const override;
+
+    virtual void connect_changed(const Link<weld::TextWidget&, void>& rLink) override;
+    virtual void connect_focus_out(const Link<weld::Widget&, void>& rLink) override;
+
+    virtual Formatter& GetFormatter() override;
+    virtual void SetFormatter(weld::EntryFormatter* pFormatter) override;
+
+    virtual void sync_range_from_formatter() override;
+    virtual void sync_value_from_formatter() override;
+    virtual void sync_increments_from_formatter() override;
+
+private:
+    QString formatValue(double fValue);
+
+private Q_SLOTS:
+    void handleValueChanged();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

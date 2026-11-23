@@ -628,7 +628,7 @@ void CommandLineArgs::ParseCommandLine_Impl( Supplier& supplier )
 #endif
                     //ignore additional legacy options that don't do anything anymore
                     oArg != "nocrashreport" &&
-#if ENABLE_QT5 || ENABLE_QT6
+#if ENABLE_QT6
                     // allow style-related command line options natively supported by Qt applications
                     !oArg.startsWith(u"style=") &&
                     !oArg.startsWith(u"stylesheet=") &&

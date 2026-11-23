@@ -21,12 +21,9 @@ Settings about which desktops have support enabled.
  * Set the enabled platform plugins
  */
 #define ENABLE_GTK3 0
-#define ENABLE_GTK3_KDE5 0
 #define ENABLE_GTK4 0
 #define ENABLE_HEADLESS 0
-#define ENABLE_KF5 0
 #define ENABLE_KF6 0
-#define ENABLE_QT5 0
 #define ENABLE_QT6 0
 #define ENABLE_WIN 0
 
@@ -36,8 +33,6 @@ Settings about which desktops have support enabled.
 #define USE_HEADLESS_CODE 0
 #define ENABLE_GSTREAMER_1_0 0
 #define ENABLE_QT6_MULTIMEDIA 0
-#define QT5_HAVE_GOBJECT 0
-#define QT5_USING_X11 0
 #define QT6_USING_X11 0
 
 #endif

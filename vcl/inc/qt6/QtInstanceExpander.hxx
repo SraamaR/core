@@ -7,6 +7,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceExpander.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtExpander.hxx"
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/Expander.hxx>
+
+class QtInstanceExpander : public QtInstanceWidget, public virtual weld::Expander
+{
+    Q_OBJECT
+
+    QtExpander* m_pExpander;
+
+public:
+    QtInstanceExpander(QtExpander* pExpander);
+
+    virtual void set_label(const OUString& rText);
+    virtual OUString get_label() const;
+    virtual bool get_expanded() const;
+    virtual void set_expanded(bool bExpand);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

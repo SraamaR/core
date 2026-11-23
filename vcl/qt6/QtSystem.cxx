@@ -7,6 +7,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtSystem.cxx"
+#include <sal/config.h>
+
+#include <QtInstance.hxx>
+#include <QtSystem.hxx>
+#include <QtTools.hxx>
+
+#include <tools/gen.hxx>
+#include <vcl/svapp.hxx>
+
+#include <QtGui/QGuiApplication>
+#include <QtGui/QScreen>
+
+unsigned int QtSystem::GetDisplayScreenCount() { return QGuiApplication::screens().size(); }
+
+AbsoluteScreenPixelRectangle QtSystem::GetDisplayScreenPosSizePixel(unsigned int nScreen)
+{
+    QRect qRect = QGuiApplication::screens().at(nScreen)->geometry();
+    return AbsoluteScreenPixelRectangle(toRectangle(scaledQRect(qRect, qApp->devicePixelRatio())));
+}
+
+void QtSystem::ShowNativeMessageBox(const OUString& rTitle, const OUString& rMessage)
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread(
+        [&] { QMessageBox::critical(nullptr, toQString(rTitle), toQString(rMessage)); });
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

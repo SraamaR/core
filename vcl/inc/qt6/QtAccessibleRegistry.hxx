@@ -7,6 +7,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtAccessibleRegistry.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <com/sun/star/accessibility/XAccessible.hpp>
+
+#include <QtCore/QObject>
+
+#include <map>
+
+using namespace css::accessibility;
+
+/**
+ * Maintains a mapping between XAccessible objects and the
+ * associated QObjects. The corresponding QObject can be
+ * passed to the QAccessible::queryAccessibleInterface method in
+ * order to retrieve the QAccessibleInterface for the
+ * XAccessible object.
+ */
+class QtAccessibleRegistry
+{
+private:
+    static std::map<css::accessibility::XAccessible*, QObject*> m_aMapping;
+    QtAccessibleRegistry() = delete;
+
+public:
+    /** Returns the related QObject* for the XAccessible. Creates a new one if none exists yet. */
+    static QObject* getQObject(const css::uno::Reference<XAccessible>& xAcc);
+    static void insert(const css::uno::Reference<XAccessible>& xAcc, QObject* pQObject);
+    /** Removes the entry for the given XAccessible. */
+    static void remove(const css::uno::Reference<XAccessible>& xAcc);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

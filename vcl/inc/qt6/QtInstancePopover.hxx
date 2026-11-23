@@ -7,6 +7,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstancePopover.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceContainer.hxx"
+
+#include <vcl/weld/Popover.hxx>
+
+class QtInstancePopover : public QtInstanceContainer, public virtual weld::Popover
+{
+    Q_OBJECT
+
+public:
+    explicit QtInstancePopover(QWidget* pWidget);
+
+    virtual void popup_at_rect(weld::Widget* pParent, const tools::Rectangle& rRect,
+                               weld::Placement ePlace = weld::Placement::Under) override;
+    virtual void popdown() override;
+
+    virtual void resize_to_request() override;
+
+    virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

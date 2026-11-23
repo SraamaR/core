@@ -7,6 +7,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceLabel.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/Label.hxx>
+
+#include <QtCore/QObject>
+#include <QtWidgets/QLabel>
+
+class QtInstanceLabel : public QtInstanceWidget, public virtual weld::Label
+{
+    Q_OBJECT
+
+    QLabel* m_pLabel;
+
+public:
+    QtInstanceLabel(QLabel* pLabel);
+
+    virtual void set_label(const OUString& rText) override;
+    virtual OUString get_label() const override;
+    virtual void set_mnemonic_widget(Widget* pTarget) override;
+    virtual void set_font(const vcl::Font& rFont) override;
+    virtual void set_label_type(weld::LabelType eType) override;
+    virtual void set_font_color(const Color& rColor) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

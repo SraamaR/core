@@ -7,6 +7,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceLevelBar.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceLevelBar.hxx>
+#include <QtInstanceLevelBar.moc>
+
+QtInstanceLevelBar::QtInstanceLevelBar(QProgressBar* pProgressBar)
+    : QtInstanceWidget(pProgressBar)
+    , m_pProgressBar(pProgressBar)
+{
+    assert(pProgressBar);
+}
+
+void QtInstanceLevelBar::set_percentage(double fPercentage)
+{
+    SolarMutexGuard g;
+    GetQtInstance().RunInMainThread([&] { m_pProgressBar->setValue(std::round(fPercentage)); });
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

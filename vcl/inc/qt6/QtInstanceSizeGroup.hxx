@@ -7,6 +7,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceSizeGroup.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <vcl/weld/SizeGroup.hxx>
+
+#include <QtCore/QObject>
+
+class QtInstanceSizeGroup : public QObject, public virtual weld::SizeGroup
+{
+    Q_OBJECT
+
+public:
+    QtInstanceSizeGroup(VclSizeGroupMode eMode);
+
+    virtual void add_widget(weld::Widget* pWidget) override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

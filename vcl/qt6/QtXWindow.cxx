@@ -7,6 +7,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtXWindow.cxx"
+#include <sal/config.h>
+
+#include <QtXWindow.hxx>
+
+QtXWindow::QtXWindow(QtInstanceWidget* pQtInstanceWindow)
+    : TransportAsXWindow(pQtInstanceWindow)
+    , m_pQWidget(pQtInstanceWindow->getQWidget())
+{
+}
+
+void QtXWindow::clear()
+{
+    m_pQWidget = nullptr;
+    TransportAsXWindow::clear();
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

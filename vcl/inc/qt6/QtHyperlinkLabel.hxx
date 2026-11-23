@@ -7,6 +7,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtHyperlinkLabel.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <QtWidgets/QLabel>
+
+/**
+ * QLabel subclass for a label that holds a hyperlink,
+ * with convenient getters/setters for the displayed text
+ * and the hyperlink target.
+ */
+class QtHyperlinkLabel : public QLabel
+{
+    Q_OBJECT
+
+    QString m_sDisplayText;
+    QString m_sUri;
+
+public:
+    QtHyperlinkLabel(QWidget* pParent);
+
+    const QString& displayText() const { return m_sDisplayText; }
+    void setDisplayText(const QString& rDisplayText);
+
+    const QString& uri() const { return m_sUri; }
+    void setUri(const QString& rUri);
+
+private:
+    void update();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

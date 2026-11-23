@@ -7,6 +7,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceCheckButton.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/CheckButton.hxx>
+
+#include <QtCore/QObject>
+#include <QtWidgets/QCheckBox>
+
+class QtInstanceCheckButton : public QtInstanceWidget, public virtual weld::CheckButton
+{
+    Q_OBJECT
+
+    QCheckBox* m_pCheckBox;
+
+public:
+    QtInstanceCheckButton(QCheckBox* pCheckBox);
+
+    virtual void do_set_state(TriState eState) override;
+    virtual TriState get_state() const override;
+
+    virtual void set_label(const OUString& rText) override;
+    virtual OUString get_label() const override;
+    virtual void set_label_wrap(bool bWrap) override;
+
+private Q_SLOTS:
+    void handleToggled();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

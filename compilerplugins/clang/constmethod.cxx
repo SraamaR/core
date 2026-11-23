@@ -55,7 +55,7 @@ public:
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/vcl/unx/gtk3/gtkinst.cxx")
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/vcl/unx/gtk3/gtkframe.cxx")
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/vcl/skia/gdiimpl.cxx")
-            || loplugin::hasPathnamePrefix(fn, SRCDIR "/vcl/qt5/")
+            || loplugin::hasPathnamePrefix(fn, SRCDIR "/vcl/qt6/")
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/package/source/xstor/owriteablestream.cxx")
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/package/source/zippackage/ZipPackage.cxx")
             || loplugin::hasPathnamePrefix(fn, SRCDIR "/toolkit/")

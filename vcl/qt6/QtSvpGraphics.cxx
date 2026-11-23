@@ -7,6 +7,90 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtSvpGraphics.cxx"
+#include <sal/config.h>
+#include <config_cairo_canvas.h>
+
+#include <QtFrame.hxx>
+#include <QtGraphics_Controls.hxx>
+#include <QtInstance.hxx>
+#include <QtSvpGraphics.hxx>
+#include <QtSvpSurface.hxx>
+#include <QtTools.hxx>
+
+#include <QtWidgets/QWidget>
+
+QtSvpGraphics::QtSvpGraphics(QtFrame* pFrame)
+    : QtGraphicsBase(pFrame)
+{
+    if (!QtInstance::noNativeControls())
+        m_pWidgetDraw.reset(new QtGraphics_Controls(*this));
+    if (pFrame)
+        setDevicePixelRatioF(pFrame->devicePixelRatioF());
+}
+
+QtSvpGraphics::~QtSvpGraphics() {}
+
+void QtSvpGraphics::updateQWidget() const
+{
+    QtFrame* pFrame = GetFrame();
+    if (!pFrame)
+        return;
+    QWidget& rQWidget = pFrame->GetQWidget();
+    rQWidget.update(rQWidget.rect());
+}
+
+#if ENABLE_CAIRO_CANVAS
+
+bool QtSvpGraphics::SupportsCairo() const { return true; }
+
+cairo::SurfaceSharedPtr
+QtSvpGraphics::CreateSurface(const cairo::CairoSurfaceSharedPtr& rSurface) const
+{
+    return std::make_shared<cairo::QtSvpSurface>(rSurface);
+}
+
+cairo::SurfaceSharedPtr QtSvpGraphics::CreateSurface(const OutputDevice& /*rRefDevice*/, int x,
+                                                     int y, int width, int height) const
+{
+    return std::make_shared<cairo::QtSvpSurface>(this, x, y, width, height);
+}
+
+#endif
+
+static void QImage2BitmapBuffer(QImage& rImg, BitmapBuffer& rBuf)
+{
+    assert(rImg.width());
+    assert(rImg.height());
+
+    rBuf.mnWidth = rImg.width();
+    rBuf.mnHeight = rImg.height();
+    rBuf.mnBitCount = getFormatBits(rImg.format());
+    rBuf.mpBits = rImg.bits();
+    rBuf.mnScanlineSize = rImg.bytesPerLine();
+}
+
+void QtSvpGraphics::handleDamage(const tools::Rectangle& rDamagedRegion)
+{
+    assert(m_pWidgetDraw);
+    assert(dynamic_cast<QtGraphics_Controls*>(m_pWidgetDraw.get()));
+    assert(!rDamagedRegion.IsEmpty());
+
+    QImage* pImage = static_cast<QtGraphics_Controls*>(m_pWidgetDraw.get())->getImage();
+    assert(pImage);
+    if (pImage->width() == 0 || pImage->height() == 0)
+        return;
+
+    BitmapBuffer aBuffer;
+    QImage2BitmapBuffer(*pImage, aBuffer);
+    SalTwoRect aTR(0, 0, pImage->width(), pImage->height(), rDamagedRegion.Left(),
+                   rDamagedRegion.Top(), rDamagedRegion.GetWidth(), rDamagedRegion.GetHeight());
+
+    GetImpl()->drawBitmapBuffer(aTR, &aBuffer, CAIRO_OPERATOR_OVER);
+}
+
+void QtSvpGraphics::GetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY)
+{
+    ImplGetResolution(rDPIX, rDPIY);
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

@@ -7,6 +7,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtExpander.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QWidget>
+
+class QtExpander : public QWidget
+{
+    Q_OBJECT
+
+    QPushButton* m_pButton;
+    QGridLayout* m_pLayout;
+    QWidget* m_pContentWidget;
+    bool m_bExpanded;
+
+public:
+    QtExpander(QWidget* pParent);
+    void setContentWidget(QWidget* pWidget);
+
+    void setText(const QString& rText);
+    QString text() const;
+
+    void setExpanded(bool bExpand);
+    bool isExpanded() const;
+
+Q_SIGNALS:
+    void expandedChanged(bool bExpanded);
+
+private:
+    void update();
+
+private Q_SLOTS:
+    void handleButtonClick();
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

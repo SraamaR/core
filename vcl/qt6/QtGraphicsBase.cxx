@@ -7,6 +7,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtGraphicsBase.cxx"
+#include <sal/config.h>
+
+#include <QtGraphicsBase.hxx>
+#include <QtInstance.hxx>
+
+#include <o3tl/string_view.hxx>
+
+#include <QtGui/QScreen>
+
+void QtGraphicsBase::ImplGetResolution(sal_Int32& rDPIX, sal_Int32& rDPIY)
+{
+    char* pForceDpi;
+    if ((pForceDpi = getenv("SAL_FORCEDPI")))
+    {
+        rDPIX = rDPIY = o3tl::toInt32(std::string_view(pForceDpi));
+        return;
+    }
+
+    if (!m_pFrame)
+        return;
+
+    QScreen* pScreen = m_pFrame->GetQWidget().screen();
+    qreal devicePixelRatio = GetQtInstance().EmscriptenLightweightRunInMainThread(
+        [pScreen] { return pScreen->devicePixelRatio(); });
+    rDPIX = pScreen->logicalDotsPerInchX() * devicePixelRatio + 0.5;
+    rDPIY = pScreen->logicalDotsPerInchY() * devicePixelRatio + 0.5;
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

@@ -7,6 +7,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceFrame.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceContainer.hxx"
+
+#include <vcl/weld/Frame.hxx>
+
+#include <QtWidgets/QGroupBox>
+
+class QtInstanceFrame : public QtInstanceContainer, public virtual weld::Frame
+{
+    Q_OBJECT
+
+    QGroupBox* m_pGroupBox;
+
+public:
+    QtInstanceFrame(QGroupBox* pGroupBox);
+
+    virtual void set_label(const OUString& rText) override;
+    virtual OUString get_label() const override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

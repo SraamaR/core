@@ -95,14 +95,11 @@ SalInstance* tryInstance( const OUString& rModuleBase, bool bForce = false )
 #endif
 
     SalInstance* pInst = nullptr;
-    OUString aUsedModuleBase(rModuleBase);
-    if (aUsedModuleBase == "kde5")
-        aUsedModuleBase = "kf5";
     OUString aModule(
 #ifdef SAL_DLLPREFIX
             SAL_DLLPREFIX
 #endif
-            "vclplug_" + aUsedModuleBase + "lo" SAL_DLLEXTENSION );
+            "vclplug_" + rModuleBase + "lo" SAL_DLLEXTENSION );
 
     osl::Module aMod;
     if (aMod.loadRelative(reinterpret_cast<oslGenericFunction>(&tryInstance), aModule, SAL_LOADMODULE_GLOBAL))
@@ -125,11 +122,8 @@ SalInstance* tryInstance( const OUString& rModuleBase, bool bForce = false )
                  * So make sure libgtk+ & co are still mapped into memory when
                  * atk-bridge's atexit handler gets called.
                  */
-                if (aUsedModuleBase == "gtk4" || aUsedModuleBase == "gtk3" ||
-                    aUsedModuleBase == "gtk3_kde5" || aUsedModuleBase == "kf5" ||
-                    aUsedModuleBase == "kf6" ||
-                    aUsedModuleBase == "qt5" || aUsedModuleBase == "qt6" ||
-                    aUsedModuleBase == "win")
+                if (rModuleBase == "gtk4" || rModuleBase == "gtk3" ||
+                    rModuleBase == "kf6" || rModuleBase == "qt6")
                 {
                     pCloseModule = nullptr;
                 }
@@ -170,19 +164,10 @@ std::vector<OUString> autodetect_plugin_list()
 #endif
 
     std::vector<OUString> aPlugins;
-    if (eDesktop == DesktopType::LXQt || eDesktop == DesktopType::Plasma5 || eDesktop == DesktopType::Plasma6)
-    {
 #if ENABLE_KF6
-        if (eDesktop == DesktopType::Plasma6)
-            aPlugins.push_back(u"kf6"_ustr);
+    if (eDesktop == DesktopType::Plasma6)
+        aPlugins.push_back(u"kf6"_ustr);
 #endif
-#if ENABLE_KF5
-        aPlugins.push_back(u"kf5"_ustr);
-#endif
-#if ENABLE_GTK3_KDE5
-        aPlugins.push_back(u"gtk3_kde5"_ustr);
-#endif
-    }
 
 #if ENABLE_GTK3
     aPlugins.push_back(u"gtk3"_ustr);
@@ -230,6 +215,13 @@ SalInstance *CreateSalInstance()
         aUsePlugin.clear();
     }
 
+    if (aUsePlugin == "qt5" || aUsePlugin == "kf5" || aUsePlugin == "kde5"
+        || aUsePlugin == "gtk3_kde5")
+    {
+        SAL_WARN("vcl.plugadapt", "Qt-based plugins require Qt 6");
+        aUsePlugin.clear();
+    }
+
     if (Application::IsBitmapRendering() || (aUsePlugin.isEmpty() && IsHeadlessModeRequested()))
         aUsePlugin = "svp";
 
@@ -272,15 +264,6 @@ SalInstance *CreateSalInstance()
 #endif
 #if ENABLE_GTK4
         u"gtk4"_ustr,
-#endif
-#if ENABLE_KF5
-        u"kf5"_ustr,
-#endif
-#if ENABLE_GTK3_KDE5
-        u"gtk3_kde5"_ustr,
-#endif
-#if ENABLE_QT5
-        u"qt5"_ustr,
 #endif
 #if ENABLE_KF6
         u"kf6"_ustr,

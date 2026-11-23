@@ -5,8 +5,40 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
  */
 
-#include "../qt5/QtMainWindow.cxx"
+#include <sal/config.h>
 
-/* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */
+#include <QtAccessibleWidget.hxx>
+#include <QtMainWindow.hxx>
+#include <QtMainWindow.moc>
+
+#include <QtGui/QAccessible>
+#include <QtGui/QCloseEvent>
+
+QtMainWindow::QtMainWindow(QtFrame& rFrame, Qt::WindowFlags f)
+    : QMainWindow(nullptr, f)
+    , m_rFrame(rFrame)
+{
+#ifndef __EMSCRIPTEN__
+    QAccessible::installFactory(QtAccessibleWidget::customFactory);
+#endif
+    setUnifiedTitleAndToolBarOnMac(true);
+}
+
+void QtMainWindow::closeEvent(QCloseEvent* pEvent)
+{
+    bool bRet = false;
+    bRet = m_rFrame.CallCallback(SalEvent::Close, nullptr);
+
+    if (bRet)
+        pEvent->accept();
+    // SalEvent::Close returning false may mean that the user has vetoed
+    // closing the frame ("you have unsaved changes" dialog for example)
+    // We shouldn't process the event in such a case
+    else
+        pEvent->ignore();
+}
+
+void QtMainWindow::moveEvent(QMoveEvent* pEvent) { m_rFrame.handleMoveEvent(pEvent); }

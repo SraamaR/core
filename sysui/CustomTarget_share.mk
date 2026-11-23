@@ -12,7 +12,7 @@ include $(SRCDIR)/sysui/productlist.mk
 
 ifeq ($(ENABLE_GIO),TRUE)
 	brand_URIPARAM := --urls
-else ifeq ($(ENABLE_QT5),TRUE)
+else ifeq ($(ENABLE_QT6),TRUE)
 	brand_URIPARAM := --urls
 else
 	brand_URIPARAM :=

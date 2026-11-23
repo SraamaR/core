@@ -7,6 +7,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceSpinner.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include "QtInstanceWidget.hxx"
+
+#include <vcl/weld/Spinner.hxx>
+
+#include <QtWidgets/QProgressBar>
+
+class QtInstanceSpinner : public QtInstanceWidget, public virtual weld::Spinner
+{
+    Q_OBJECT
+
+public:
+    QtInstanceSpinner(QProgressBar* pProgressBar);
+
+    virtual void start() override;
+    virtual void stop() override;
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

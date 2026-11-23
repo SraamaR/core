@@ -46,71 +46,11 @@ Example `bashrc` scriptlet:
     EMSDK_ENV=$HOME/Development/libreoffice/git_emsdk/emsdk_env.sh
     [ -f "$EMSDK_ENV" ] && \. "$EMSDK_ENV" 1>/dev/null 2>&1
 
-### Setup Qt
+### Setup Qt 6
 
-<https://doc.qt.io/qt-5/wasm.html>
-
-Most of the information from <https://doc.qt.io/qt-6/wasm.html> is still valid for Qt5;
-generally the Qt6 WASM documentation is much better, because it incorporated much
-information from the Qt Wiki.
-
-FWIW: Qt 5.15 LTS is not maintained publicly and Qt WASM has quite a few bugs. Most
-WASM fixes from Qt 6 are needed for Qt 5.15 too. Allotropia offers a Qt repository
-with the necessary patches cherry-picked.
-
-With "-opensource -confirm-license" you agree to the open source license.
-
-    git clone https://github.com/allotropia/qt5.git
-    cd qt5
-    git checkout 5.15.2+wasm
-    ./init-repository --module-subset=qtbase
-    ./configure -opensource -confirm-license -xplatform wasm-emscripten -feature-thread -prefix <whatever> QMAKE_CFLAGS+=-sSUPPORT_LONGJMP=wasm QMAKE_CXXFLAGS+=-sSUPPORT_LONGJMP=wasm
-    make -j<CORES> module-qtbase
-
-Note that `5.15.2+wasm` is a branch that is expected to contain further fixes as they become
-necessary.
-
-Do not include `-fwasm-exceptions` in the above `QMAKE_CXXFLAGS`, see
-<https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop> "Note:
-Currently, using the new Wasm exception handling and simulate_infinite_loop == true at the same time
-does not work yet in C++ projects that have objects with destructors on the stack at the time of the
-call."  (Also see the EMSCRIPTEN-specific HACK in soffice_main, desktop/source/app/sofficemain.cxx,
-for what we need to do to work around that.)
-
-Optionally you can add the configure flag "-compile-examples". But then you also have to
-patch at least mkspecs/wasm-emscripten/qmake.conf with EXIT_RUNTIME=0, otherwise they will
-fail to run. In addition, building with examples will break with some of them, but at that
-point Qt already works and also most examples. Or just skip them. Other interesting flags
-might be "-nomake tests -no-pch -ccache".
-
-Linking takes quite a long time, because emscripten-finalize rewrites the whole WASM files with
-some options. This way the LO WASM possibly needs 64GB RAM. For faster link times add
-"-s WASM_BIGINT=1", change to ASSERTIONS=1 and use -g3 to prevent rewriting the WASM file and
-generating source maps (see emscripten.py, finalize_wasm, and avoid modify_wasm = True). This is
-just needed for Qt examples, as LO already uses the correct flags!
-
-It's needed to install Qt5 to the chosen prefix. Else LO won't find all needed files in the
-right place. For installation you can do
-
-    make -j<CORES> install
-or
-    make -j8 -C qtbase/src install_subtargets
-
-Current Qt fails to start the demo webserver: <https://bugreports.qt.io/browse/QTCREATORBUG-24072>
-
-Use `emrun --serve_after_close` to run Qt WASM demos.
-
-Qt builds some 3rd-party libraries that it brings along (e.g., qt5/qtbase/src/3rdparty/freetype) and
-compiles its own code against the C/C++ include files of those 3rd-party libraries.  But when we
-link LO, we link against our own versions of those libraries' archives (e.g.,
-workdir/UnpackedTarball/freetype/instdir/lib/libfreetype.a), not against the Qt ones (e.g.,
-$QT5DIR/lib/libqtfreetype.a).  This mismatch between the include files that Qt is compiled against,
-vs. the archive actually linked in, seems to not cause issues in practice.  (If it did, we could
-either try to make both Qt and LO link against e.g. -sUSE_FREETYPE from emscripten-ports, or we
-could move Qt from a prerequisite to a proper external/qt5 LO module built during the LO build, and
-hack its configuration to build against LO's external/freetype etc.  The former approach, building Qt
-with -sUSE_FREETYPE, is even tried in qtbase/src/gui/configure.json, but apparently fails for
-reasons not studied further yet, cf. Qt's config.log.)
+Install a Qt 6 build for WebAssembly using the same Emscripten SDK as LibreOffice.
+See the [Qt for WebAssembly documentation](https://doc.qt.io/qt-6/wasm.html).
+Set `QT6DIR` to the WebAssembly Qt 6 installation prefix.
 
 ### Setup LO
 
@@ -118,8 +58,7 @@ reasons not studied further yet, cf. Qt's config.log.)
 environment vars, especially `EMMAKEN_JUST_CONFIGURE`, which will create the
 correct output file names, checked by `configure` (`a.out`).
 
-There's a distro config for WASM, but it just provides --host=wasm32-local-emscripten, which
-should be enough setup. The build itself is a cross build and the cross-toolset just depends
+The WASM distro config selects the Emscripten target and Qt 6. The build itself is a cross build and the cross-toolset just depends
 on a minimal toolset (gcc, libc-dev, flex, bison); all else is built from source, because the
 final result does not depend on the build system at all.
 
@@ -129,7 +68,7 @@ Recommended configure setup is thusly:
     `--with-distro=LibreOfficeWASM32`
 
 * local config
-    `QT5DIR=/dir/of/qt5/install/prefix`
+    `QT6DIR=/dir/of/qt6/install/prefix`
 
 * if you want to use ccache on both sides of the build
 ```

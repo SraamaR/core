@@ -7,6 +7,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtX11Support.hxx"
+#pragma once
+
+#include <sal/config.h>
+
+#include <xcb/xproto.h>
+
+#include <string_view>
+
+class QtX11Support final
+{
+public:
+    static void setApplicationID(xcb_window_t nWinId, std::u16string_view rWMClass);
+};
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */

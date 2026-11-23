@@ -7,6 +7,42 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../qt5/QtInstanceImage.cxx"
+#include <sal/config.h>
+
+#include <QtInstanceImage.hxx>
+#include <QtInstanceImage.moc>
+
+#include <vcl/qt/QtUtils.hxx>
+
+QtInstanceImage::QtInstanceImage(QLabel* pLabel)
+    : QtInstanceWidget(pLabel)
+    , m_pLabel(pLabel)
+{
+    assert(m_pLabel);
+}
+
+void QtInstanceImage::set_from_icon_name(const OUString& rIconName)
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread([&] { m_pLabel->setPixmap(loadQPixmapIcon(rIconName)); });
+}
+
+void QtInstanceImage::set_image(VirtualDevice* pDevice)
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread([&] {
+        if (pDevice)
+            m_pLabel->setPixmap(toQPixmap(*pDevice));
+    });
+}
+
+void QtInstanceImage::set_image(const css::uno::Reference<css::graphic::XGraphic>& rGraphic)
+{
+    SolarMutexGuard g;
+
+    GetQtInstance().RunInMainThread([&] { m_pLabel->setPixmap(toQPixmap(rGraphic)); });
+}
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab cinoptions=b1,g0,N-s cinkeys+=0=break: */
