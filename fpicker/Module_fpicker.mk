@@ -19,12 +19,6 @@ $(eval $(call gb_Module_add_l10n_targets,fpicker,\
 	AllLangMoTarget_fps \
 ))
 
-ifeq ($(OS),WNT)
-$(eval $(call gb_Module_add_targets,fpicker,\
-	Library_fps \
-))
-endif
-
 # screenshots
 $(eval $(call gb_Module_add_screenshot_targets,fpicker,\
     CppunitTest_fpicker_dialogs_test \

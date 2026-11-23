@@ -26,7 +26,6 @@ ifneq (,$(filter-out MACOSX WNT,$(OS)))
 gb_Executable_FILENAMES := $(patsubst uno:uno,uno:uno.bin,$(gb_Executable_FILENAMES))
 endif
 gb_Executable_FILENAMES := $(patsubst unopkg_bin:unopkg_bin%,unopkg_bin:unopkg$(if $(filter-out MACOSX,$(OS)),.bin),$(gb_Executable_FILENAMES))
-gb_Executable_FILENAMES := $(patsubst unopkg_com:unopkg_com%,unopkg_com:unopkg.com,$(gb_Executable_FILENAMES))
 ifneq ($(OS),MACOSX)
 gb_Executable_FILENAMES := $(patsubst gengal:gengal,gengal:gengal.bin,$(gb_Executable_FILENAMES))
 endif
@@ -41,8 +40,6 @@ gb_Executable_FILENAMES := $(patsubst soffice_bin:soffice_bin%,soffice_bin:soffi
 endif
 endif
 
-gb_Executable_FILENAMES := $(patsubst soffice_exe:soffice_exe%,soffice_exe:soffice.exe,$(gb_Executable_FILENAMES))
-gb_Executable_FILENAMES := $(patsubst soffice_com:soffice_com%,soffice_com:soffice.com,$(gb_Executable_FILENAMES))
 
 # fixes for .jnilibs on macOS that are not also needed as .dylibs:
 ifeq ($(OS),MACOSX)

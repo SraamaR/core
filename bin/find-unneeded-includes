@@ -541,24 +541,17 @@ def isNonLinuxPath(path):
         or path.startswith("connectivity/source/inc/ado") \
         or path.startswith("desktop/win32") \
         or path.startswith("embeddedobj/source/msole") \
-        or path.startswith("extensions/source/activex") \
-        or path.startswith("extensions/source/ole") \
         or path.startswith("fpicker/source/aqua/") \
-        or path.startswith("fpicker/source/win32/") \
         or path.startswith("ios") \
         or path.startswith("lingucomponent/source/spellcheck/macosxspell") \
         or path.startswith("osx") \
         or path.startswith("sal/osl/w32") \
-        or path.startswith("shell/source/win32") \
         or path.startswith("vcl/inc/android/") \
         or path.startswith("vcl/inc/ios") \
         or path.startswith("vcl/inc/quartz") \
         or path.startswith("vcl/inc/skia/osx") \
         or path.startswith("vcl/inc/skia/quartz") \
-        or path.startswith("vcl/inc/win/") \
         or path.startswith("vcl/ios") \
-        or path.startswith("vcl/win") \
-        or path.startswith("winaccessibility") \
         or path.startswith("xmlsecurity/source/xmlsec/mscrypt/") \
 
 def isNonLinuxFile(path):

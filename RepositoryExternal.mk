@@ -4188,7 +4188,6 @@ define gb_Executable__register_gengal
 $(call gb_Executable_add_runtime_dependencies,gengal,\
 	$(call gb_Library_get_target_for_build,$(CPPU_ENV_FOR_BUILD)_uno) \
 	$(call gb_Library_get_target_for_build,localedata_en) \
-	$(if $(ENABLE_WIN),$(call gb_Library_get_target_for_build,vclplug_win)) \
 	$(if $(filter host,$(gb_Side)),$(call gb_Package_get_target,postprocess_images)) \
 	$(call gb_Package_get_target_for_build,postprocess_registry) \
 	$(INSTROOT_FOR_BUILD)/$(LIBO_URE_ETC_FOLDER)/$(call gb_Helper_get_rcfile,uno) \

@@ -30,8 +30,6 @@ $(eval $(call gb_Module_add_targets,vcl,\
     Package_theme_definitions \
     Package_toolbarmode \
     UIConfig_vcl \
-    $(if $(filter WNT,$(OS)), \
-        Package_opengl_denylist ) \
     $(if $(filter SKIA,$(BUILD_TYPE)), \
         Package_skia_denylist ) \
     $(if $(filter DESKTOP FUZZERS,$(BUILD_TYPE)), \
@@ -131,18 +129,6 @@ $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_gtk3_kde5_moc \
     Library_vclplug_gtk3_kde5 \
     Executable_lo_kde5filepicker \
-))
-endif
-
-ifeq ($(OS),WNT)
-$(eval $(call gb_Module_add_targets,vcl,\
-    WinResTarget_vcl \
-))
-endif
-
-ifneq ($(ENABLE_WIN),)
-$(eval $(call gb_Module_add_targets,vcl,\
-    Library_vclplug_win \
 ))
 endif
 
@@ -274,12 +260,6 @@ $(eval $(call gb_Module_add_check_targets,vcl,\
 endif
 
 # Is any configuration missing?
-ifeq ($(OS),WNT)
-$(eval $(call gb_Module_add_check_targets,vcl,\
-    CppunitTest_vcl_timer \
-))
-endif
-
 ifeq ($(OS),MACOSX)
 $(eval $(call gb_Module_add_check_targets,vcl,\
     CppunitTest_vcl_timer \

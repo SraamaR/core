@@ -11,7 +11,6 @@
 gb_MERGE_LIBRARY_LIST := \
 	avmedia \
 	$(call gb_Helper_optional,AVMEDIA, \
-		$(if $(filter WNT,$(OS)),avmediawin) \
 	) \
 	$(call gb_Helper_optional,SCRIPTING, \
 		basctl \
@@ -163,9 +162,6 @@ gb_MERGE_LIBRARY_LIST += \
 	sdbc2 \
 	$(call gb_Helper_optional,DBCONNECTIVITY,sdbt) \
 	slideshow \
-	$(if $(filter WNT,$(OS)), \
-		smplmail \
-	) \
 	storagefd \
 	svgfilter \
 	t602filter \
@@ -178,9 +174,6 @@ gb_MERGE_LIBRARY_LIST += \
 	wpftdraw \
 	wpftimpress \
 	wpftwriter \
-	$(if $(filter WNT,$(OS)), \
-		wininetbe1 \
-	) \
 	writerperfect \
 	xmlsecurity \
 

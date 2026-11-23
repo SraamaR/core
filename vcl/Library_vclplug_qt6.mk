@@ -51,7 +51,6 @@ $(eval $(call gb_Library_use_libraries,vclplug_qt6,\
     cppu \
     sal \
     salhelper \
-    $(if $(filter WNT,$(OS)),vclplug_win) \
     xmlreader \
 ))
 

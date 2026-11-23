@@ -30,7 +30,6 @@ for subdir in $(ls -d */ | grep -v \
                                 -e jvmaccess/ \
                                 -e librelogo/ \
                                 -e m4/ \
-                                -e msicreator/ \
                                 -e nlpsolver/ \
                                 -e offapi/ \
                                 -e officecfg/ \

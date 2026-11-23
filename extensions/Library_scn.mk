@@ -43,13 +43,6 @@ $(eval $(call gb_Library_add_exception_objects,scn,\
 	extensions/source/scanner/scanner \
 ))
 
-ifeq ($(OS),WNT)
-$(eval $(call gb_Library_add_exception_objects,scn,\
-	extensions/source/scanner/scanwin \
-))
-else
-ifneq ($(OS),WNT)
-
 $(eval $(call gb_Library_add_exception_objects,scn,\
 	extensions/source/scanner/grid \
 	extensions/source/scanner/sane \
@@ -60,8 +53,6 @@ ifeq ($(OS),LINUX)
 $(eval $(call gb_Library_add_libs,scn,\
 	-ldl \
 ))
-endif
-endif
 endif
 
 # vim:set noet sw=4 ts=4:

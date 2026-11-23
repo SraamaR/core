@@ -51,8 +51,6 @@
 #include <vclpluginapi.h>
 #if USE_HEADLESS_CODE
 #include <unx/gendata.hxx>
-#elif defined _WIN32
-#include <win/saldata.hxx>
 #endif
 
 #include <comphelper/emscriptenthreading.hxx>
@@ -272,15 +270,7 @@ bool QtInstance::useCairo()
 }
 
 QtInstance::QtInstance()
-#if defined _WIN32
-#if USE_HEADLESS_CODE
-    : WindowsInstance(std::make_unique<QtYieldMutex>(), new GenericUnixSalData)
-#else
-    : WindowsInstance(std::make_unique<QtYieldMutex>(), new SalData)
-#endif
-#else
     : SalGenericInstance(std::make_unique<QtYieldMutex>(), new GenericUnixSalData)
-#endif
     , m_pTimer(nullptr)
     , m_bSleeping(false)
     , m_aUpdateStyleTimer("vcl::qt5 m_aUpdateStyleTimer")

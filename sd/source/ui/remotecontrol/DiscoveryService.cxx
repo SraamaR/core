@@ -20,21 +20,9 @@
 
 struct sockaddr_in;
 
-#ifdef _WIN32
-  // LO vs WinAPI conflict
-  #undef WB_LEFT
-  #undef WB_RIGHT
-
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-
-  #include "WINNetworkService.hxx"
-  typedef int socklen_t;
-#else
-  #include <unistd.h>
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-#endif
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 #if HAVE_FEATURE_AVAHI
   #include "AvahiNetworkService.hxx"
@@ -53,11 +41,7 @@ DiscoveryService::~DiscoveryService()
 {
     if (mSocket != -1)
     {
-#ifdef _WIN32
-        closesocket( mSocket );
-#else
         close( mSocket );
-#endif
     }
 
     if (zService)
@@ -74,11 +58,6 @@ void DiscoveryService::setupSockets()
     gethostname(hostname, 1023);
 
     zService = new AvahiNetworkService(hostname);
-    zService->setup();
-#endif
-
-#ifdef _WIN32
-    zService = new WINNetworkService();
     zService->setup();
 #endif
 
@@ -109,11 +88,7 @@ void DiscoveryService::setupSockets()
     multicastRequest.imr_interface.s_addr = htonl(INADDR_ANY);
 
     rc = setsockopt( mSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-    #ifdef _WIN32
-        reinterpret_cast<const char*>(&multicastRequest),
-    #else
         &multicastRequest,
-    #endif
         sizeof(multicastRequest));
 
     if (rc)

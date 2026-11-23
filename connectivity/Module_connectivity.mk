@@ -48,20 +48,6 @@ $(eval $(call gb_Module_add_targets,connectivity,\
 ))
 endif
 
-ifeq ($(OS),WNT)
-$(eval $(call gb_Module_add_targets,connectivity,\
-	Configuration_ado \
-	Library_ado \
-))
-
-# "ADO is not available on 64bit" said the commit
-ifeq ($(CPUNAME),INTEL)
-$(eval $(call gb_Module_add_check_targets,connectivity,\
-    CppunitTest_connectivity_ado \
-))
-endif
-endif # WNT
-
 ifeq ($(ENABLE_EVOAB2),TRUE)
 $(eval $(call gb_Module_add_targets,connectivity,\
 	Configuration_evoab \

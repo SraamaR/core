@@ -494,12 +494,6 @@ postprocess_FILES_postgresql := \
 postprocess_DRIVERS += postgresql
 endif
 
-ifeq (WNT,$(OS))
-postprocess_FILES_main += \
-	$(call gb_XcuModuleTarget_get_target,connectivity/registry/ado)/org/openoffice/Office/DataAccess/Drivers-ado.xcu
-postprocess_DRIVERS += ado
-endif
-
 endif # host
 endif # DBCONNECTIVITY
 

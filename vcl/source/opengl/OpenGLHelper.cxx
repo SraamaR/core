@@ -42,10 +42,6 @@
 #include <salinst.hxx>
 #include <svdata.hxx>
 
-#if defined (_WIN32)
-#include <opengl/win/WinDeviceInfo.hxx>
-#endif
-
 static std::atomic<bool> gbInShaderCompile = false;
 
 namespace {
@@ -719,19 +715,7 @@ bool OpenGLHelper::isDeviceDenylisted()
     {
         OpenGLZone aZone;
 
-#if defined( _WIN32 )
-        WinOpenGLDeviceInfo aInfo;
-        bDenylisted = aInfo.isDeviceBlocked();
-
-        if (DriverBlocklist::GetWindowsVersion() == 0x00060001 && /* Windows 7 */
-            (aInfo.GetAdapterVendorID() == "0x1002" || aInfo.GetAdapterVendorID() == "0x1022")) /* AMD */
-        {
-            SAL_INFO("vcl.opengl", "Relaxing watchdog timings.");
-            OpenGLZone::relaxWatchdogTimings();
-        }
-#else
         bDenylisted = false;
-#endif
         bSet = true;
     }
 

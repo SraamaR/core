@@ -17,10 +17,6 @@ ifeq (,$(DISABLE_DYNLOADING))
 $(eval $(call gb_Module_add_targets,extensions,\
 	Library_abp \
 	Library_scn \
-	$(if $(filter WNT,$(OS)), \
-		Library_WinUserInfoBe \
-		$(if $(CXX_X86_BINARY),Executable_twain32shim) \
-	) \
 	UIConfig_sabpilot \
 	UIConfig_scanner \
 ))
@@ -74,23 +70,6 @@ $(eval $(call gb_Module_add_check_targets,extensions,\
 endif
 endif # !ENABLE_WASM_STRIP_BASIC_DRAW_MATH_IMPRESS
 endif
-
-ifeq ($(OS),WNT)
-
-ifeq ($(COM),MSC)
-$(eval $(call gb_Module_add_targets,extensions,\
-	WinResTarget_activex \
-	Library_so_activex \
-	CustomTarget_so_activex_idl \
-))
-
-endif # COM=MSC
-
-$(eval $(call gb_Module_add_targets,extensions,\
-	Library_oleautobridge \
-))
-
-endif # WNT
 
 $(eval $(call gb_Module_add_subsequentcheck_targets,extensions,\
     JunitTest_extensions_unoapi \

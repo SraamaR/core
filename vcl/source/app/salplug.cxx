@@ -269,12 +269,6 @@ SalInstance *CreateSalInstance()
 
     // fallback, try everything
     static constexpr OUString aPlugins[] = {
-#if defined(MACOSX)
-        u"osx"_ustr,
-#endif
-#if ENABLE_WIN
-        u"win"_ustr,
-#endif
 #if ENABLE_GTK3
         u"gtk3"_ustr,
 #endif

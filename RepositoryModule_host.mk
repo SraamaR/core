@@ -41,12 +41,6 @@ $(eval $(call gb_Module_add_moduledirs,libreoffice,\
 ))
 endif
 
-ifneq ($(ENABLE_WASM_STRIP_ACCESSIBILITY),TRUE)
-$(eval $(call gb_Module_add_moduledirs,libreoffice,\
-	winaccessibility \
-))
-endif
-
 $(eval $(call gb_Module_add_moduledirs,libreoffice,\
 	android \
     $(if $(ENABLE_WASM_STRIP_BASIC_DRAW_MATH_IMPRESS),, \
@@ -61,7 +55,6 @@ $(eval $(call gb_Module_add_moduledirs,libreoffice,\
 	bean \
 	binaryurp \
 	bridges \
-	cli_ure \
     codemaker \
 	comphelper \
 	configmgr \

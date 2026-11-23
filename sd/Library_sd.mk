@@ -538,16 +538,6 @@ $(eval $(call gb_Library_add_exception_objects,sd,\
 	sd/source/ui/remotecontrol/DiscoveryService \
 ))
 
-ifeq ($(OS),WNT)
-
-$(eval $(call gb_Library_add_exception_objects,sd,\
-	sd/source/ui/remotecontrol/WINNetworkService \
-))
-
-$(eval $(call gb_Library_use_external,sd,mDNSResponder))
-
-endif # OS=WNT
-
 $(eval $(call gb_Library_add_defs,sd,\
 	-DENABLE_SDREMOTE \
 ))

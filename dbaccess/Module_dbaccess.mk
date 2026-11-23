@@ -21,7 +21,6 @@ $(eval $(call gb_Module_add_l10n_targets,dbaccess,\
 ifneq (,$(filter DBCONNECTIVITY,$(BUILD_TYPE)))
 
 $(eval $(call gb_Module_add_targets,dbaccess,\
-	$(if $(filter WNT,$(OS)),Executable_odbcconfig) \
 	Library_dbaxml \
 	Library_dbu \
 	Library_sdbt \

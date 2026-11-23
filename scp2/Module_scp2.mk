@@ -22,7 +22,6 @@ $(eval $(call gb_Module_add_targets,scp2,\
 	InstallModule_onlineupdate \
 	InstallModule_ooo \
 	InstallModule_python \
-	InstallModule_spsupp \
 	InstallModule_ure \
 	InstallModule_writer \
 	InstallModule_xsltfilter \
@@ -30,12 +29,6 @@ $(eval $(call gb_Module_add_targets,scp2,\
 	$(if $(filter ODK,$(BUILD_TYPE)), \
 		InstallModule_sdkoo \
 		InstallScript_sdkoo \
-	) \
-	$(if $(filter WNT,$(OS)),\
-		InstallModule_activex \
-		InstallModule_quickstart \
-		InstallModule_windows \
-		InstallModule_winexplorerext \
 	) \
 	$(if $(filter TRUE,$(ENABLE_EVOAB2) $(ENABLE_GIO) $(ENABLE_GTK3)),\
 		InstallModule_gnome \

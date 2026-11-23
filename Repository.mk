@@ -47,7 +47,6 @@ $(eval $(call gb_Helper_register_executables,NONE, \
 	io-testconnection \
 	langsupport \
 	$(if $(filter iOS,$(OS)),LibreOffice) \
-	lngconvex \
 	localize \
     $(call gb_CondExeLockfile,lockfile) \
 	makedepend \
@@ -58,7 +57,6 @@ $(eval $(call gb_Helper_register_executables,NONE, \
 	pdfverify \
 	pocheck \
 	propex \
-	regsvrex \
 	saxparser \
 	svidl \
 	$(if $(ENABLE_ONLINE_UPDATE_MAR),\
@@ -174,63 +172,7 @@ $(eval $(call gb_Helper_register_executables_for_install,OOO,brand, \
 	$(call gb_Helper_optional,FUZZERS,zipfuzzer) \
 	$(call gb_Helper_optional,FUZZERS,svgfuzzer) \
 	soffice_bin \
-    $(call gb_CondExeUnopkg, \
-        unopkg_bin \
-        $(if $(filter WNT,$(OS)), \
-            unopkg \
-            unopkg_com \
-        ) \
-    ) \
-	$(if $(filter WNT,$(OS)), \
-		soffice_exe \
-		soffice_com \
-		soffice_safe \
-		unoinfo \
-		$(if $(filter-out AARCH64,$(CPUNAME)),twain32shim) \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,base_brand, \
-	$(if $(filter WNT,$(OS)), \
-		sbase \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,base, \
-	$(if $(filter WNT,$(OS)), \
-		odbcconfig \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,calc_brand, \
-	$(if $(filter WNT,$(OS)), \
-		scalc \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,draw_brand, \
-	$(if $(filter WNT,$(OS)), \
-		sdraw \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,impress_brand, \
-	$(if $(filter WNT,$(OS)), \
-		simpress \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,math_brand, \
-	$(if $(filter WNT,$(OS)), \
-		smath \
-	) \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,writer_brand, \
-	$(if $(filter WNT,$(OS)), \
-		sweb \
-		swriter \
-	) \
+    $(call gb_CondExeUnopkg,unopkg_bin) \
 ))
 
 $(eval $(call gb_Helper_register_executables_for_install,OOO,ooo, \
@@ -431,7 +373,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 	$(if $(ENABLE_QUICKJS),jsuno) \
 	$(if $(filter WNT,$(OS)),jumplist) \
 	$(if $(ENABLE_LDAP),ldapbe2) \
-	$(if $(filter WNT,$(OS)),WinUserInfoBe) \
 	localebe1 \
 	log \
 	lng \
@@ -503,12 +444,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 	xof \
 	xsltdlg \
 	xsltfilter \
-	$(if $(filter $(OS),WNT), \
-		ado \
-		oleautobridge \
-		smplmail \
-		wininetbe1 \
-	) \
 ))
 
 $(eval $(call gb_Helper_register_plugins_for_install,OOOLIBS,ooo, \
@@ -517,7 +452,6 @@ $(eval $(call gb_Helper_register_plugins_for_install,OOOLIBS,ooo, \
     icg \
     sdui \
     $(if $(ENABLE_GEN),vclplug_gen) \
-    $(if $(ENABLE_WIN),vclplug_win) \
 ))
 
 $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,postgresqlsdbc, \
@@ -644,20 +578,11 @@ $(eval $(call gb_Helper_register_plugins_for_install,PRIVATELIBS_URE,ure, \
     $(call gb_CondLibSalTextenc,sal_textenc) \
 ))
 
-ifneq ($(ENABLE_WASM_STRIP_ACCESSIBILITY),TRUE)
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooo, \
-	$(if $(filter WNT,$(OS)), \
-		winaccessibility \
-	) \
-))
-endif
-
 $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooo, \
     $(call gb_Helper_optional,AVMEDIA, \
         $(if $(ENABLE_GSTREAMER_1_0),avmediagst) \
         $(if $(ENABLE_GTK4),avmediagtk) \
         $(if $(ENABLE_QT6_MULTIMEDIA),avmediaqt6) \
-        $(if $(filter WNT,$(OS)),avmediawin) \
     ) \
 	cached1 \
 	comphelper \
@@ -690,11 +615,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooo, \
 	xmlsecurity \
 	xsec_xmlsec \
 	xstor \
-	$(if $(filter WNT,$(OS)), \
-		fps \
-		inprocserv \
-		UAccCOM \
-	) \
 ))
 
 $(eval $(call gb_Helper_register_plugins_for_install,PLAINLIBS_OOO,ooo, \
@@ -703,49 +623,6 @@ $(eval $(call gb_Helper_register_plugins_for_install,PLAINLIBS_OOO,ooo, \
     localedata_euro \
     localedata_others \
 ))
-
-ifeq ($(OS),WNT)
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,activexbinarytable, \
-	regactivex \
-))
-
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,activex, \
-	so_activex \
-))
-
-$(eval $(call gb_Helper_register_executables_for_install,OOO,spsuppfiles, \
-	spsupp_helper \
-))
-
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,spsuppfiles, \
-	$(if $(CXX_X64_BINARY),spsupp_x64) \
-	$(if $(CXX_X86_BINARY),spsupp_x86) \
-))
-
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,ooobinarytable, \
-	$(if $(WINDOWS_SDK_HOME),\
-		instooofiltmsi \
-		qslnkmsi \
-		reg_dlls \
-		reg4allmsdoc \
-		sdqsmsi \
-		sellangmsi \
-		sn_tools \
-		$(if $(ENABLE_ONLINE_UPDATE_MAR),install_updateservice) \
-	) \
-))
-
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_OOO,winexplorerextbinarytable, \
-	shlxtmsi \
-))
-
-$(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_SHLXTHDL,winexplorerext, \
-	ooofilt \
-	propertyhdl \
-	shlxthdl \
-))
-
-endif # WNT
 
 $(eval $(call gb_Helper_register_libraries_for_install,RTVERLIBS,ure, \
 	cppuhelper \
@@ -837,7 +714,6 @@ $(eval $(call gb_Helper_register_packages, \
 	$(if $(ENABLE_OOENV),instsetoo_native_ooenv) \
 	postprocess_registry \
 	readlicense_oo_readmes \
-	setup_native_misc \
 	sysui_share \
 	vcl_fontunxpsprint \
 ))

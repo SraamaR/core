@@ -37,15 +37,9 @@ which is implemented by `OleServer_Impl`.
 
 See `extensions/source/ole/`
 
-## ActiveX Control
-
-This allows embedding LO into a Win32 application as an ActiveX control.
-
-See `extensions/source/activex/`
-
 ## Scanner Support
 
-You can scan from LibreOffice, using platform specific backends like TWAIN/SANE.
+You can scan from LibreOffice, using the SANE backend.
 
 See `extensions/source/scanner/`
 

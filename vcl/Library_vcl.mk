@@ -21,9 +21,7 @@ $(eval $(call gb_Library_Library,vcl))
 
 $(eval $(call gb_Library_set_componentfile,vcl,vcl/vcl.common,services))
 
-ifeq ($(OS),WNT)
-$(eval $(call gb_Library_add_componentimpl,vcl,windows))
-else ifeq ($(OS),ANDROID)
+ifeq ($(OS),ANDROID)
 $(eval $(call gb_Library_add_componentimpl,vcl,android))
 else ifeq ($(OS),iOS)
 $(eval $(call gb_Library_add_componentimpl,vcl,ios))
@@ -840,29 +838,5 @@ $(eval $(call gb_Library_use_system_darwin_frameworks,vcl,\
 endif
 
 
-
-ifeq ($(OS),WNT)
-$(eval $(call gb_Library_add_exception_objects,vcl,\
-    vcl/source/opengl/win/WinDeviceInfo \
-    vcl/win/app/fileregistration \
-))
-
-$(eval $(call gb_Library_use_system_win32_libs,vcl,\
-    dwrite \
-    ole32 \
-    setupapi \
-    shell32 \
-    version \
-))
-
-$(eval $(call gb_Library_add_nativeres,vcl,vcl/salsrc))
-
-# HACK: dependency on icon themes so running unit tests don't
-# prevent delivering these by having open file handles on WNT
-$(eval $(call gb_Library_use_packages,vcl, \
-    vcl_opengl_denylist \
-    $(if $(filter host,$(gb_Side)),postprocess_images) \
-))
-endif # WNT
 
 # vim: set noet sw=4 ts=4:

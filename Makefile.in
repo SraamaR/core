@@ -358,11 +358,7 @@ install-strip:
 test-install: build
 	@rm -rf $(TESTINSTALLDIR)
 	@mkdir -p $(TESTINSTALLDIR)
-ifeq ($(OS_FOR_BUILD),WNT)
-	cd $(SRCDIR)/instsetoo_native && $(MAKE) LIBO_TEST_INSTALL=TRUE $(GMAKE_OPTIONS)
-else
 	@WITH_LANG_LIST="$(WITH_LANG_LIST)" $(SRCDIR)/solenv/bin/ooinstall $(TESTINSTALLDIR)
-endif
 	@$(call gb_Top_InstallFinished,Test Installation,$(TESTINSTALLDIR))
 
 distro-pack-install: install

@@ -38,12 +38,6 @@ $(eval $(call gb_Module_add_targets,avmedia,\
 ))
 endif
 
-ifeq ($(OS),WNT)
-$(eval $(call gb_Module_add_targets,avmedia,\
-	Library_avmediawin \
-))
-endif
-
 endif # AVMEDIA
 
 # vim: set noet sw=4 ts=4:

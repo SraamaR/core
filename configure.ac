@@ -1094,42 +1094,8 @@ gnu)
     _os=GNU
      ;;
 
-cygwin*|wsl*)
-    # When building on Windows normally with MSVC under Cygwin,
-    # configure thinks that the host platform (the platform the
-    # built code will run on) is Cygwin, even if it obviously is
-    # Windows, which in Autoconf terminology is called
-    # "mingw32". (Which is misleading as MinGW is the name of the
-    # tool-chain, not an operating system.)
-
-    # Somewhat confusing, yes. But this configure script doesn't
-    # look at $host etc that much, it mostly uses its own $_os
-    # variable, set here in this case statement.
-
-    if test "$enable_headless" != "yes"; then
-        using_freetype_fontconfig=no
-    else
-        using_freetype_fontconfig=yes
-    fi
-    using_unix_desktop=no
-    using_x11=no
-    test_unix_dlapi=no
-    test_openldap=no
-    test_qt6=yes
-    test_win=yes
-    enable_pagein=no
-    build_skia=yes
-    _os=WINNT
-
-    DLLPOST=".dll"
-    LINKFLAGSNOUNDEFS=
-
-    if test "$host_cpu" = "aarch64"; then
-        build_skia=yes
-        enable_gpgmepp=no
-        enable_coinmp=no
-        enable_firebird_sdbc=no
-    fi
+cygwin*|mingw*|msys*|pw32*|wsl*)
+    AC_MSG_ERROR([Windows is no longer a supported build target on the linuxoffice branch])
     ;;
 
 darwin*)
@@ -2173,21 +2139,6 @@ libo_FUZZ_ARG_ENABLE(hardening-flags,
          convenient set of default hardening flags for non-distros]),
 ,)
 
-AC_ARG_ENABLE(windows-build-signing,
-    AS_HELP_STRING([--enable-windows-build-signing],
-        [Enable signing of windows binaries (*.exe, *.dll)]),
-,)
-
-AC_ARG_ENABLE(silent-msi,
-    AS_HELP_STRING([--enable-silent-msi],
-        [Enable MSI with LIMITUI=1 (silent install).]),
-,)
-
-AC_ARG_ENABLE(wix,
-    AS_HELP_STRING([--enable-wix],
-        [Build Windows installer using WiX.]),
-,)
-
 AC_ARG_WITH(product-name,
     AS_HELP_STRING([--with-product-name='My Own Office Suite'],
         [Define the product name. Default is AC_PACKAGE_NAME.]),
@@ -2465,7 +2416,7 @@ AC_ARG_WITH(package-format,
         [Specify package format(s) for LibreOffice installation sets. The
          implicit --without-package-format leads to no installation sets being
          generated. Possible values: archive, bsd, deb, emscripten,
-         installed, msi, pkg, and rpm.
+         installed, pkg, and rpm.
          Example: --with-package-format='deb rpm']),
 ,)
 
@@ -3268,17 +3219,7 @@ else
 fi
 AC_SUBST(ENABLE_HARDENING_FLAGS)
 
-dnl ===================================================================
-dnl Test whether to sign Windows Build
-dnl ===================================================================
-AC_MSG_CHECKING([whether to sign windows build])
-if test "$enable_windows_build_signing" = "yes" -a "$_os" = "WINNT"; then
-    AC_MSG_RESULT([yes])
-    WINDOWS_BUILD_SIGNING="TRUE"
-else
-    AC_MSG_RESULT([no])
-    WINDOWS_BUILD_SIGNING="FALSE"
-fi
+WINDOWS_BUILD_SIGNING=FALSE
 AC_SUBST(WINDOWS_BUILD_SIGNING)
 
 dnl ===================================================================
@@ -5901,7 +5842,7 @@ AC_MSG_CHECKING([which package format to use])
 if test -n "$with_package_format" -a "$with_package_format" != no; then
     for i in $with_package_format; do
         case "$i" in
-        bsd | deb | pkg | rpm | archive | installed | msi | emscripten)
+        bsd | deb | pkg | rpm | archive | installed | emscripten)
             ;;
         *)
             AC_MSG_ERROR([unsupported format $i. Supported by EPM are:
@@ -5914,7 +5855,6 @@ LibreOffice additionally supports:
 archive - .tar.gz or .zip
 emscripten - directory with qt_soffice.html etc.
 installed - installation tree
-msi - Windows .msi
         ])
             ;;
         esac
@@ -14577,35 +14517,7 @@ fi
 AC_SUBST(ENABLE_EXTENSION_UPDATE)
 
 
-dnl ===================================================================
-dnl Test whether to create MSI with LIMITUI=1 (silent install)
-dnl ===================================================================
-AC_MSG_CHECKING([whether to create MSI with LIMITUI=1 (silent install)])
-if test "$enable_silent_msi" = "" -o "$enable_silent_msi" = "no"; then
-    AC_MSG_RESULT([no])
-    ENABLE_SILENT_MSI=
-else
-    AC_MSG_RESULT([yes])
-    ENABLE_SILENT_MSI=TRUE
-    SCPDEFS="$SCPDEFS -DENABLE_SILENT_MSI"
-fi
 AC_SUBST(ENABLE_SILENT_MSI)
-
-dnl ===================================================================
-dnl Check for WiX tools.
-dnl ===================================================================
-if test "$enable_wix" = "" -o "enable_wix" = "no"; then
-    AC_MSG_RESULT([no])
-    ENABLE_WIX=
-else
-    AC_MSG_RESULT([yes])
-    # FIXME: this should do proper detection, but the path is currently
-    # hardcoded in msicreator/createmsi.py
-    if ! test -x "/cygdrive/c/Program Files (x86)/WiX Toolset v3.11/bin/candle"; then
-      AC_MSG_ERROR([WiX requested but WiX toolset v3.11 not found at the expected location])
-    fi
-    ENABLE_WIX=TRUE
-fi
 AC_SUBST(ENABLE_WIX)
 
 AC_MSG_CHECKING([whether and how to use Xinerama])

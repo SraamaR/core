@@ -65,40 +65,7 @@ $(eval $(call gb_Module_add_targets,desktop,\
 endif
 endif # DESKTOP
 
-ifeq ($(OS),WNT)
-
-$(eval $(call gb_Module_add_targets,desktop,\
-    StaticLibrary_winloader \
-    StaticLibrary_winlauncher \
-    Executable_quickstart \
-    Executable_sbase \
-    Executable_scalc \
-    Executable_sdraw \
-    Executable_simpress \
-    Executable_smath \
-    Executable_soffice_exe \
-    Executable_soffice_com \
-    Executable_soffice_safe \
-    Executable_sweb \
-    Executable_swriter \
-    Executable_unoinfo \
-    $(call gb_CondExeUnopkg, \
-        Executable_unopkg \
-        Executable_unopkg_com \
-    ) \
-    WinResTarget_quickstart \
-    WinResTarget_sbase \
-    WinResTarget_scalc \
-    WinResTarget_sdraw \
-    WinResTarget_simpress \
-    WinResTarget_soffice \
-    WinResTarget_sofficebin \
-    WinResTarget_smath \
-    WinResTarget_sweb \
-    WinResTarget_swriter \
-))
-
-else ifeq (,$(filter MACOSX ANDROID iOS HAIKU EMSCRIPTEN,$(OS)))
+ifeq (,$(filter MACOSX ANDROID iOS HAIKU EMSCRIPTEN,$(OS)))
 
 ifeq (,$(filter FUZZERS,$(BUILD_TYPE)))
 $(eval $(call gb_Module_add_targets,desktop,\
