@@ -77,7 +77,6 @@
 #endif
 
 #ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
 #else
 #if !ENABLE_RUNTIME_OPTIMIZATIONS
 #define FORCE_INTERPRETED 1

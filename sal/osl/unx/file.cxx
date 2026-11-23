@@ -61,7 +61,6 @@
 #endif /* MACOSX */
 
 #ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
 #include <android/log.h>
 #include <android/asset_manager.h>
 #endif

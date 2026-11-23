@@ -49,7 +49,6 @@
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
-#include <osl/detail/android-bootstrap.h>
 #endif
 #if defined __EMSCRIPTEN__
 #include <emscripten/console.h>

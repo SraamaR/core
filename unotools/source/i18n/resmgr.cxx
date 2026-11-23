@@ -53,10 +53,6 @@
 
 #include <unordered_map>
 
-#ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
-#endif
-
 #ifdef __EMSCRIPTEN__
 #include <osl/detail/emscripten-bootstrap.h>
 #endif

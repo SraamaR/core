@@ -116,10 +116,6 @@ FileDefinitionWidgetDraw::FileDefinitionWidgetDraw(SalGraphics& rGraphics)
     , m_bIsActive(false)
 {
     m_pWidgetDefinition = getWidgetDefinitionForTheme(u"online");
-#ifdef IOS
-    if (!m_pWidgetDefinition)
-        m_pWidgetDefinition = getWidgetDefinitionForTheme(u"ios");
-#endif
 
     if (!m_pWidgetDefinition)
         return;

@@ -293,12 +293,6 @@ bridges/inc/bridge.hxx
 bridges/inc/cppinterfaceproxy.hxx
 bridges/inc/unointerfaceproxy.hxx
 bridges/inc/vtablefactory.hxx
-bridges/source/cpp_uno/gcc3_ios/cpp2uno.cxx
-bridges/source/cpp_uno/gcc3_ios/except.cxx
-bridges/source/cpp_uno/gcc3_ios/rtti.h
-bridges/source/cpp_uno/gcc3_ios/share.hxx
-bridges/source/cpp_uno/gcc3_ios/uno2cpp.cxx
-bridges/source/cpp_uno/gcc3_ios/unwind-cxx.h
 bridges/source/cpp_uno/gcc3_linux_aarch64/abi.cxx
 bridges/source/cpp_uno/gcc3_linux_aarch64/abi.hxx
 bridges/source/cpp_uno/gcc3_linux_aarch64/callvirtualfunction.cxx
@@ -2861,7 +2855,6 @@ desktop/source/deployment/registry/sfwk/dp_parceldesc.hxx
 desktop/source/deployment/registry/sfwk/dp_sfwk.cxx
 desktop/source/inc/helpids.h
 desktop/source/lib/init.cxx
-desktop/source/lib/lokandroid.cxx
 desktop/source/lib/lokinteractionhandler.cxx
 desktop/source/lib/lokinteractionhandler.hxx
 desktop/source/migration/migration.cxx
@@ -5014,7 +5007,6 @@ include/opencl/openclwrapper.hxx
 include/opencl/platforminfo.hxx
 include/osl/conditn.h
 include/osl/conditn.hxx
-include/osl/detail/android-bootstrap.h
 include/osl/detail/component-defines.h
 include/osl/detail/component-mapping.h
 include/osl/detail/emscripten-bootstrap.h
@@ -6189,7 +6181,6 @@ lingucomponent/source/languageguessing/guesslang.cxx
 lingucomponent/source/languageguessing/simpleguesser.cxx
 lingucomponent/source/lingutil/lingutil.cxx
 lingucomponent/source/lingutil/lingutil.hxx
-lingucomponent/source/spellcheck/macosxspell/macspellimp.hxx
 lingucomponent/source/spellcheck/spell/sspellimp.cxx
 lingucomponent/source/spellcheck/spell/sspellimp.hxx
 lingucomponent/source/thesaurus/libnth/nthesdta.cxx
@@ -7053,9 +7044,6 @@ reportdesign/source/ui/report/dlgedclip.cxx
 reportdesign/source/ui/report/dlgedfac.cxx
 reportdesign/source/ui/report/dlgedfunc.cxx
 reportdesign/source/ui/report/propbrw.cxx
-sal/android/libreofficekit-jni.c
-sal/android/lo-bootstrap.c
-sal/android/uthash.h
 sal/cppunittester/cppunittester.cxx
 sal/emscripten/lo-bootstrap.c
 sal/inc/signalshared.hxx
@@ -13605,7 +13593,6 @@ vbahelper/source/vbahelper/vbashaperange.cxx
 vbahelper/source/vbahelper/vbashapes.cxx
 vbahelper/source/vbahelper/vbatextframe.cxx
 vbahelper/source/vbahelper/vbawindowbase.cxx
-vcl/android/androidinst.cxx
 vcl/backendtest/VisualBackendTest.cxx
 vcl/backendtest/outputdevice/bitmap.cxx
 vcl/backendtest/outputdevice/common.cxx
@@ -13740,12 +13727,6 @@ vcl/inc/ppdparser.hxx
 vcl/inc/print.h
 vcl/inc/printdlg.hxx
 vcl/inc/printerinfomanager.hxx
-vcl/inc/quartz/common.h
-vcl/inc/quartz/salbmp.h
-vcl/inc/quartz/salgdi.h
-vcl/inc/quartz/salgdicommon.hxx
-vcl/inc/quartz/salvd.h
-vcl/inc/quartz/utils.h
 vcl/inc/regband.hxx
 vcl/inc/salbmp.hxx
 vcl/inc/salframe.hxx
@@ -13940,9 +13921,6 @@ vcl/inc/unx/x11_cursors/vshear_mask.h
 vcl/inc/vclstatuslistener.hxx
 vcl/inc/window.h
 vcl/inc/wizdlg.hxx
-vcl/ios/dummies.cxx
-vcl/ios/iosinst.cxx
-vcl/ios/salios.cxx
 vcl/null/printerinfomanager.cxx
 vcl/qa/cppunit/app/test_IconThemeInfo.cxx
 vcl/qa/cppunit/app/test_IconThemeScanner.cxx
@@ -13968,12 +13946,6 @@ vcl/qa/cppunit/graphicfilter/filters-tga-test.cxx
 vcl/qa/cppunit/lifecycle.cxx
 vcl/qa/cppunit/svm/svmtest.cxx
 vcl/qa/cppunit/timer.cxx
-vcl/quartz/SystemFontList.cxx
-vcl/quartz/salbmp.cxx
-vcl/quartz/salgdi.cxx
-vcl/quartz/salgdicommon.cxx
-vcl/quartz/salvd.cxx
-vcl/quartz/utils.cxx
 vcl/source/accessibility/characterattributeshelper.cxx
 vcl/source/accessibility/accessiblemenubasecomponent.cxx
 vcl/source/accessibility/accessiblemenucomponent.cxx

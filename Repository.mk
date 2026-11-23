@@ -46,7 +46,6 @@ $(eval $(call gb_Helper_register_executables,NONE, \
 	idxdict \
 	io-testconnection \
 	langsupport \
-	$(if $(filter iOS,$(OS)),LibreOffice) \
 	localize \
     $(call gb_CondExeLockfile,lockfile) \
 	makedepend \
@@ -319,9 +318,6 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,ooo, \
 	hyphen \
 	lnth \
 	spell \
-	$(if $(filter iOS,$(OS)), \
-		MacOSXSpell \
-	) \
 ))
 endif
 
@@ -520,7 +516,6 @@ $(eval $(call gb_Helper_register_libraries,PLAINLIBS_NONE, \
 	wpftqahelper \
 	precompiled_system \
 	$(if $(ENABLE_CLI),$(if $(filter MSC,$(COM)),cli_cppuhelper)) \
-	$(if $(filter $(OS),ANDROID),lo-bootstrap) \
 ))
 
 $(eval $(call gb_Helper_register_libraries_for_install,PLAINLIBS_URE,ure, \
@@ -863,7 +858,6 @@ $(eval $(call gb_Helper_register_packages_for_install,ooo,\
 	wizards_properties \
 	wizards_wizardshare \
 	toolbarmode_images \
-	vcl_theme_definitions \
 	$(if $(filter WNT,$(OS)), \
 		vcl_opengl_denylist \
 	) \

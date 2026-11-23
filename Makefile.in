@@ -203,14 +203,6 @@ clean-build:
 ifneq ($(CROSS_COMPILING),)
 	rm -fr $(INSTDIR_FOR_BUILD)
 	rm -fr $(WORKDIR_FOR_BUILD)
-ifeq ($(OS),ANDROID)
-	rm -fr $(BUILDDIR)/android/obj
-	rm -fr $(BUILDDIR)/android/jniLibs
-	rm -fr $(SRCDIR)/android/app/build
-	rm -fr $(SRCDIR)/android/app/assets
-	rm -fr $(SRCDIR)/android/app/assets_strippedUI
-	rm -fr $(SRCDIR)/android/app/res_generated
-endif
 endif
 
 include $(SRCDIR)/compilerplugins/Makefile.mk
@@ -303,9 +295,6 @@ bootstrap: check-if-root check-makefile-version compilerplugins
 build: bootstrap fetch $(if $(CROSS_COMPILING),cross-toolset,install-gdb-printers) \
     $(if $(filter check,$(MAKECMDGOALS)),$(if $(COMPILER_PLUGINS),$(if $(LODE_HOME),clang-format-check)))
 	$(KEEP_AWAKE_CMD) $(MAKE) $(PARALLELISM_OPTION) $(IWYU_OPTION) $(GMAKE_OPTIONS) -f $(SRCDIR)/Makefile.gbuild $(build_goal)
-ifeq ($(OS),iOS)
-	$(KEEP_AWAKE_CMD) $(MAKE) $(PARALLELISM_OPTION) $(GMAKE_OPTIONS) ios
-endif
 
 build-non-l10n-only build-l10n-only check debugrun translations packageinfo coverage $(gb_Top_MODULE_CHECK_TARGETS): build
 
@@ -314,9 +303,7 @@ help showmodules gbuildtojson pocheck:
 
 cross-toolset: bootstrap fetch install-gdb-printers
 # fetch again in case there are externals only needed on build platform
-ifneq ($(OS),iOS)
 	$(MAKE) gb_Side=build $(PARALLELISM_OPTION) $(GMAKE_OPTIONS) -f $(BUILDDIR)/Makefile fetch
-endif
 	$(MAKE) gb_Side=build $(PARALLELISM_OPTION) $(GMAKE_OPTIONS) -f $(SRCDIR)/Makefile.gbuild build-tools
 
 install-gdb-printers:

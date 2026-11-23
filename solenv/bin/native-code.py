@@ -137,10 +137,6 @@ core_constructor_list = [
 # eventattacher/source/evtatt.component
     "eventattacher_EventAttacher",
 # extensions/source/logging/log.component
-    ("com_sun_star_comp_extensions_FileHandler", "#ifdef ANDROID"),
-    ("com_sun_star_comp_extensions_LoggerPool", "#ifdef ANDROID"),
-    ("com_sun_star_comp_extensions_PlainTextFormatter", "#ifdef ANDROID"),
-    ("com_sun_star_comp_extensions_SimpleTextFormatter", "#ifdef ANDROID"),
 # extensions/source/bibliography/bib.component
     ("extensions_BibliographyLoader_get_implementation", "#if !ENABLE_FUZZERS"),
 # filter/source/config/cache/filterconfig1.component
@@ -319,8 +315,6 @@ core_constructor_list = [
     "linguistic_LinguProps_get_implementation",
     "linguistic_LngSvcMgr_get_implementation",
     "linguistic_GrammarCheckingIterator_get_implementation",
-# linguistic/source/spellcheck/MacOSXSpellMacOSXSpell.component
-    ("lingucomponent_MacSpellChecker_get_implementation", "#ifdef IOS"),
 # lingucomponent/source/spellcheck/languagetool/LanguageTool.component
     ("lingucomponent_LanguageToolGrammarChecker_get_implementation", "#if !ENABLE_FUZZERS"),
     ("lingucomponent_NumberText_get_implementation", "#if !ENABLE_FUZZERS"),
@@ -454,7 +448,6 @@ core_constructor_list = [
 # ucb/source/ucp/file/ucpfile1.component
     "ucb_file_FileProvider_get_implementation",
 # ucb/source/ucp/expand/ucpexpand1.component
-    ("ucb_expand_ExpandContentProviderImpl_get_implementation", "#ifdef ANDROID"),
 # ucb/source/sorter/srtrs1.component
     "ucb_SortedDynamicResultSetFactory_get_implementation",
 # ucb/source/tdoc/ucptdoc1.component

@@ -65,9 +65,6 @@ excludelist:
     include/rtl/math.hxx:
     # TODO MSVC does not compile basegfx/numeric/ftools.hxx when this is replaced
     - math.h
-    include/android/compatibility.hxx:
-    # TODO check whether actually needed, just silence this for now
-    - math.h
     include/LibreOfficeKit/LibreOfficeKit.h:
     # the unstable API needs C99's bool
     - stdbool.h

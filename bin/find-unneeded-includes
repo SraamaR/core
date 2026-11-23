@@ -117,7 +117,6 @@ def ignoreRemoval(include, toAdd, absFileName, moduleRules, noexclude):
         "sal/config.h",
         # Works around a build breakage specific to the broken Android
         # toolchain.
-        "android/compatibility.hxx",
         # Removing this would change the meaning of '#if defined OSL_BIGENDIAN'.
         "osl/endian.h",
     )
@@ -492,7 +491,6 @@ def isInUnoIncludeFile(path):
 def isNonLinuxPath(path):
     return path.startswith("avmedia/source/win/") \
         or path.startswith("avmedia/source/macavf/") \
-        or path.startswith("bridges/inc/gcc3_ios/") \
         or path.startswith("bridges/inc/gcc3_linux_alpha/") \
         or path.startswith("bridges/inc/gcc3_linux_arm/") \
         or path.startswith("bridges/inc/gcc3_linux_hppa/") \
@@ -512,8 +510,6 @@ def isNonLinuxPath(path):
         or path.startswith("bridges/inc/gcc3_macosx_x86-64/") \
         or path.startswith("bridges/inc/gcc3_wasm/") \
         or path.startswith("bridges/inc/msvc/") \
-        or path.startswith("bridges/source/cpp_uno/gcc3_ios/") \
-        or path.startswith("bridges/source/cpp_uno/gcc3_ios/") \
         or path.startswith("bridges/source/cpp_uno/gcc3_linux_aarch64/") \
         or path.startswith("bridges/source/cpp_uno/gcc3_linux_alpha/") \
         or path.startswith("bridges/source/cpp_uno/gcc3_linux_arm/") \

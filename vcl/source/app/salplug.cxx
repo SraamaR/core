@@ -57,15 +57,6 @@
 #include <osl/module.hxx>
 #endif
 
-#if defined(iOS)
-#include <premac.h>
-#include <UIKit/UIKit.h>
-#include <postmac.h>
-
-#elif defined(ANDROID)
-#include <android/androidinst.hxx>
-#endif
-
 #if defined(_WIN32)
 #include <o3tl/char16_t2wchar_t.hxx>
 #include <salframe.hxx>
@@ -333,12 +324,6 @@ void SalAbort( const OUString& rErrorText, bool bDumpCore )
         FatalAppExitW( 0, o3tl::toW(rErrorText.getStr()) );
     }
 #else // !_WIN32
-#if defined ANDROID
-    OUString aError(rErrorText.isEmpty() ? "Unspecified application error" : rErrorText);
-    LOGE("SalAbort: '%s'", OUStringToOString(aError, osl_getThreadTextEncoding()).getStr());
-#elif defined(iOS)
-    NSLog(@"SalAbort: %s", OUStringToOString(rErrorText, osl_getThreadTextEncoding()).getStr());
-#else
     if( rErrorText.isEmpty() )
         std::fprintf( stderr, "Unspecified Application Error\n" );
     else
@@ -346,7 +331,6 @@ void SalAbort( const OUString& rErrorText, bool bDumpCore )
         CrashReporter::addKeyValue(u"AbortMessage"_ustr, rErrorText, CrashReporter::Write);
         std::fprintf( stderr, "%s\n", OUStringToOString(rErrorText, osl_getThreadTextEncoding()).getStr() );
     }
-#endif
     if( bDumpCore )
         abort();
     else
@@ -364,10 +348,6 @@ DesktopType SalGetDesktopEnvironment()
     return DesktopType::macOS;
 #elif defined(__EMSCRIPTEN__)
     return DesktopType::WASM;
-#elif defined(ANDROID)
-    return DesktopType::Android;
-#elif defined(iOS)
-    return DesktopType::iOS;
 #elif UNIX_DESKTOP_DETECT
     static DesktopType eDesktop = get_desktop_environment();
     return eDesktop;

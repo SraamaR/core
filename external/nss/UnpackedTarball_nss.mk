@@ -33,10 +33,6 @@ $(eval $(call gb_UnpackedTarball_add_patches,nss,\
     $(if $(filter LINUX,$(OS)), \
         external/nss/nss.disablefsync.patch \
         external/nss/nss.getrandom.patch) \
-    $(if $(filter iOS,$(OS)), \
-        external/nss/nss-ios.patch) \
-    $(if $(filter ANDROID,$(OS)), \
-        external/nss/nss-android.patch.1) \
     $(if $(filter WNT,$(OS)), \
         external/nss/nss.windows.patch \
         external/nss/nss.nowerror.patch \

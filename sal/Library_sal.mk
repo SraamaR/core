@@ -26,9 +26,6 @@ $(eval $(call gb_Library_add_defs,sal,\
 	$(if $(filter FUZZERS,$(BUILD_TYPE)), \
 		-DFORCE_DEFAULT_SIGNAL \
 	) \
-	$(if $(filter iOS,$(OS)), \
-		-DNO_CHILD_PROCESSES \
-	) \
 	-DSAL_DLLIMPLEMENTATION \
 	-DRTL_OS="\"$(RTL_OS)\"" \
 	-DRTL_ARCH="\"$(RTL_ARCH)\"" \
@@ -37,7 +34,7 @@ $(eval $(call gb_Library_add_defs,sal,\
 ))
 
 $(eval $(call gb_Library_use_libraries,sal,\
-	$(if $(filter ANDROID EMSCRIPTEN,$(OS)), \
+	$(if $(filter EMSCRIPTEN,$(OS)), \
 		lo-bootstrap \
 	) \
 ))

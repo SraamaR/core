@@ -34,11 +34,6 @@ $(eval $(call gb_Library_add_exception_objects,$(CPPU_ENV)_uno, \
 	$(if $(COM_IS_CLANG),-fasynchronous-unwind-tables) \
 ))
 
-else ifeq ($(OS),iOS)
-bridges_SELECTED_BRIDGE := gcc3_ios
-bridge_noopt_objects := cpp2uno except uno2cpp
-bridge_asm_objects := ios64_helper
-
 else ifeq ($(COM),MSC)
 bridges_SELECTED_BRIDGE := msvc_win32_arm64
 bridge_exception_objects := cpp2uno uno2cpp abi
@@ -183,7 +178,7 @@ bridges_SELECTED_BRIDGE := gcc3_linux_x86-64
 bridge_asm_objects := call
 bridge_noncallexception_noopt_objects := callvirtualmethod
 bridge_exception_objects := abi cpp2uno except rtti uno2cpp
-else ifneq ($(filter MACOSX iOS,$(OS)),)
+else ifneq ($(filter MACOSX,$(OS)),)
 bridges_SELECTED_BRIDGE := gcc3_macosx_x86-64
 bridge_exception_objects := abi call cpp2uno except uno2cpp
 bridge_noncallexception_noopt_objects := callvirtualmethod

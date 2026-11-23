@@ -531,6 +531,12 @@ fi
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 
+case "$host_os" in
+    android*|linux-android*|linux-androideabi*|ios*)
+        AC_MSG_ERROR([Android and iOS are no longer supported build targets on the linuxoffice branch])
+        ;;
+esac
+
 if test -n "$UNITTEST_WSL_PATHFORMAT"; then
     BUILDDIR=.
     GREP=grep
@@ -806,195 +812,6 @@ AC_ARG_ENABLE(fuzz-options,
          or where bad interaction from interdependencies is automatically avoided.])
 )
 
-dnl ===================================================================
-dnl When building for Android, --with-android-ndk and
-dnl --with-android-sdk are mandatory
-dnl ===================================================================
-
-AC_ARG_WITH(android-ndk,
-    AS_HELP_STRING([--with-android-ndk],
-        [Specify location of the Android Native Development Kit. Mandatory when building for Android.]),
-,)
-
-AC_ARG_WITH(android-sdk,
-    AS_HELP_STRING([--with-android-sdk],
-        [Specify location of the Android SDK. Mandatory when building for Android.]),
-,)
-
-AC_ARG_WITH(android-api-level,
-    AS_HELP_STRING([--with-android-api-level],
-        [Specify the API level when building for Android. Defaults to 16 for ARM and x86 and to 21 for ARM64 and x86-64]),
-,)
-
-AC_ARG_WITH(android-version-code,
-    AS_HELP_STRING([--with-android-version-code],
-        [Specify the versionCode for the app when building for Android. Defaults to 1]),
-,)
-
-ANDROID_NDK_DIR=
-if test -z "$with_android_ndk" -a -e "$SRC_ROOT/external/android-ndk" -a "$build" != "$host"; then
-    with_android_ndk="$SRC_ROOT/external/android-ndk"
-fi
-if test -n "$with_android_ndk"; then
-    eval ANDROID_NDK_DIR=$with_android_ndk
-
-    ANDROID_API_LEVEL=21
-    if test -n "$with_android_api_level" ; then
-        ANDROID_API_LEVEL="$with_android_api_level"
-    fi
-
-    ANDROID_VERSION_CODE=1
-    if test -n "$with_android_version_code" ; then
-        ANDROID_VERSION_CODE="$with_android_version_code"
-    fi
-
-    if test $host_cpu = arm; then
-        LLVM_TRIPLE=armv7a-linux-androideabi
-        ANDROID_SYSROOT_PLATFORM=arm-linux-androideabi
-        ANDROID_APP_ABI=armeabi-v7a
-        ANDROIDCFLAGS="-mthumb -march=armv7-a -mfloat-abi=softfp -mfpu=neon -Wl,--fix-cortex-a8"
-    elif test $host_cpu = aarch64; then
-        LLVM_TRIPLE=aarch64-linux-android
-        ANDROID_SYSROOT_PLATFORM=$LLVM_TRIPLE
-        ANDROID_APP_ABI=arm64-v8a
-    elif test $host_cpu = x86_64; then
-        LLVM_TRIPLE=x86_64-linux-android
-        ANDROID_SYSROOT_PLATFORM=$LLVM_TRIPLE
-        ANDROID_APP_ABI=x86_64
-    else
-        # host_cpu is something like "i386" or "i686" I guess, NDK uses
-        # "x86" in some contexts
-        LLVM_TRIPLE=i686-linux-android
-        ANDROID_SYSROOT_PLATFORM=$LLVM_TRIPLE
-        ANDROID_APP_ABI=x86
-    fi
-
-    # Set up a lot of pre-canned defaults
-
-    if test ! -f $ANDROID_NDK_DIR/RELEASE.TXT; then
-        if test ! -f $ANDROID_NDK_DIR/source.properties; then
-            AC_MSG_ERROR([Unrecognized Android NDK. Missing RELEASE.TXT or source.properties file in $ANDROID_NDK_DIR.])
-        fi
-        ANDROID_NDK_VERSION=`sed -n -e 's/Pkg.Revision = //p' $ANDROID_NDK_DIR/source.properties`
-    else
-        ANDROID_NDK_VERSION=`cut -f1 -d' ' <$ANDROID_NDK_DIR/RELEASE.TXT`
-    fi
-    if test -z "$ANDROID_NDK_VERSION";  then
-        AC_MSG_ERROR([Failed to determine Android NDK version. Please check your installation.])
-    fi
-    case $ANDROID_NDK_VERSION in
-    r9*|r10*)
-        AC_MSG_ERROR([Building for Android requires NDK version >= 27.*])
-        ;;
-    11.1.*|12.1.*|13.1.*|14.1.*|16.*|17.*|18.*|19.*|20.*|21.*|22.*|23.*|24.*|25.*|26.*)
-        AC_MSG_ERROR([Building for Android requires NDK version >= 27.*])
-        ;;
-    27.*|28.*|29.*)
-        ;;
-    *)
-        AC_MSG_WARN([Untested Android NDK version $ANDROID_NDK_VERSION, only versions 27.* to 29.* have been used successfully. Proceed at your own risk.])
-        add_warning "Untested Android NDK version $ANDROID_NDK_VERSION, only versions 27.* to 29.* have been used successfully. Proceed at your own risk."
-        ;;
-    esac
-
-    AC_MSG_NOTICE([using the Android API level... $ANDROID_API_LEVEL])
-
-    # NDK 15 or later toolchain is 64bit-only, except for Windows that we don't support. Using a 64-bit
-    # linker is required if you compile large parts of the code with -g. A 32-bit linker just won't
-    # manage to link the (app-specific) single huge .so that is built for the app in
-    # android/app/ if there is debug information in a significant part of the object files.
-    # (A 64-bit ld.gold grows too much over 10 gigabytes of virtual space when linking such a .so if
-    # all objects have been built with debug information.)
-    case $build_os in
-    linux-gnu*)
-        android_HOST_TAG=linux-x86_64
-        ;;
-    darwin*)
-        android_HOST_TAG=darwin-x86_64
-        ;;
-    *)
-        AC_MSG_ERROR([We only support building for Android from Linux or macOS])
-        # ndk would also support windows and windows-x86_64
-        ;;
-    esac
-    ANDROID_TOOLCHAIN=$ANDROID_NDK_DIR/toolchains/llvm/prebuilt/$android_HOST_TAG
-    ANDROID_COMPILER_BIN=$ANDROID_TOOLCHAIN/bin
-
-    test -z "$AR" && AR=$ANDROID_COMPILER_BIN/llvm-ar
-    test -z "$NM" && NM=$ANDROID_COMPILER_BIN/llvm-nm
-    test -z "$OBJDUMP" && OBJDUMP=$ANDROID_COMPILER_BIN/llvm-objdump
-    test -z "$RANLIB" && RANLIB=$ANDROID_COMPILER_BIN/llvm-ranlib
-    test -z "$STRIP" && STRIP=$ANDROID_COMPILER_BIN/llvm-strip
-
-    ANDROIDCFLAGS="$ANDROIDCFLAGS -target ${LLVM_TRIPLE}${ANDROID_API_LEVEL}"
-    ANDROIDCFLAGS="$ANDROIDCFLAGS -no-canonical-prefixes -ffunction-sections -fdata-sections -Qunused-arguments"
-    if test "$ENABLE_LTO" = TRUE; then
-        # -flto comes from com_GCC_defs.mk, too, but we need to make sure it gets passed as part of
-        # $CC and $CXX when building external libraries
-        ANDROIDCFLAGS="$ANDROIDCFLAGS -flto -fuse-linker-plugin -O2"
-    fi
-
-    ANDROIDCXXFLAGS="$ANDROIDCFLAGS -stdlib=libc++"
-
-    if test -z "$CC"; then
-        CC="$ANDROID_COMPILER_BIN/clang $ANDROIDCFLAGS"
-        CC_BASE="clang"
-    fi
-    if test -z "$CXX"; then
-        CXX="$ANDROID_COMPILER_BIN/clang++ $ANDROIDCXXFLAGS"
-        CXX_BASE="clang++"
-    fi
-fi
-AC_SUBST(ANDROID_NDK_DIR)
-AC_SUBST(ANDROID_NDK_VERSION)
-AC_SUBST(ANDROID_API_LEVEL)
-AC_SUBST(ANDROID_APP_ABI)
-AC_SUBST(ANDROID_SYSROOT_PLATFORM)
-AC_SUBST(ANDROID_TOOLCHAIN)
-AC_SUBST(ANDROID_VERSION_CODE)
-
-dnl ===================================================================
-dnl --with-android-sdk
-dnl ===================================================================
-ANDROID_SDK_DIR=
-if test -z "$with_android_sdk" -a -e "$SRC_ROOT/external/android-sdk-linux" -a "$build" != "$host"; then
-    with_android_sdk="$SRC_ROOT/external/android-sdk-linux"
-fi
-if test -n "$with_android_sdk"; then
-    eval ANDROID_SDK_DIR=$with_android_sdk
-    PATH="$ANDROID_SDK_DIR/platform-tools:$ANDROID_SDK_DIR/tools:$PATH"
-fi
-AC_SUBST(ANDROID_SDK_DIR)
-
-AC_ARG_ENABLE([android-lok],
-    AS_HELP_STRING([--enable-android-lok],
-        [The Android app from the android/ subdir needs several tweaks all
-         over the place that break the LOK when used in the Online-based
-         Android app.  This switch indicates that the intent of this build is
-         actually the Online-based, non-modified LOK.])
-)
-ENABLE_ANDROID_LOK=
-if test -n "$ANDROID_NDK_DIR" ; then
-    if test "$enable_android_lok" = yes; then
-        ENABLE_ANDROID_LOK=TRUE
-        AC_DEFINE(HAVE_FEATURE_ANDROID_LOK)
-        AC_MSG_NOTICE([building the Android version... for the Online-based Android app])
-    else
-        AC_MSG_NOTICE([building the Android version... for the app from the android/ subdir])
-    fi
-fi
-AC_SUBST([ENABLE_ANDROID_LOK])
-
-libo_FUZZ_ARG_ENABLE([android-editing],
-    AS_HELP_STRING([--enable-android-editing],
-        [Enable the experimental editing feature on Android.])
-)
-ENABLE_ANDROID_EDITING=
-if test "$enable_android_editing" = yes; then
-    ENABLE_ANDROID_EDITING=TRUE
-fi
-AC_SUBST([ENABLE_ANDROID_EDITING])
-
 disable_database_connectivity_dependencies()
 {
     enable_evolution2=no
@@ -1102,50 +919,6 @@ darwin*)
     AC_MSG_ERROR([macOS is no longer a supported build target on the linuxoffice branch])
     ;;
 
-ios*) # iOS
-    using_freetype_fontconfig=no
-    using_unix_desktop=no
-    using_x11=no
-    build_crypto=no
-    test_libcmis=no
-    test_openldap=no
-    test_webdav=no
-    with_gssapi=no
-    if test -n "$LODE_HOME" ; then
-        mac_sanitize_path
-        AC_MSG_NOTICE([sanitized the PATH to $PATH])
-    fi
-    enable_gpgmepp=no
-    _os=iOS
-    enable_mpl_subset=yes
-    enable_lotuswordpro=no
-    disable_database_connectivity_dependencies
-    enable_coinmp=no
-    enable_extension_integration=no
-    enable_xmlhelp=no
-    with_ppds=no
-    if test "$enable_ios_simulator" = "yes"; then
-        host=x86_64-apple-darwin
-    fi
-    # See "Default values, as such probably valid just for Linux" comment above the case "$host_os"
-    LINKFLAGSSHL="-dynamiclib"
-
-    # -fPIC is default
-    PICSWITCH=""
-
-    DLLPOST=".dylib"
-
-    # -undefined error is the default
-    LINKFLAGSNOUNDEFS=""
-
-    # HOST_PLATFORM is used for external projects and their configury typically doesn't like the "ios"
-    # part, so use aarch64-apple-darwin for now.
-    HOST_PLATFORM=aarch64-apple-darwin
-
-    # Apple's Clang uses "arm64"
-    host_cpu_for_clang=arm64
-;;
-
 freebsd*)
     using_freetype_fontconfig=yes
     using_unix_desktop=yes
@@ -1199,29 +972,6 @@ dragonfly*)
     build_skia=yes
     PTHREAD_LIBS="-pthread"
     _os=DragonFly
-    ;;
-
-linux-android*)
-    # API exists, but seems not really usable since Android 7 AFAIK
-    usable_dlapi=no
-    using_freetype_fontconfig=yes
-    using_headless_plugin=no
-    using_unix_desktop=no
-    using_x11=no
-    build_crypto=no
-    test_openldap=no
-    test_system_freetype=no
-    test_webdav=no
-    with_gssapi=no
-    disable_database_connectivity_dependencies
-    enable_lotuswordpro=no
-    enable_mpl_subset=yes
-    enable_cairo_canvas=no
-    enable_coinmp=yes
-    enable_odk=no
-    enable_python=no
-    enable_xmlhelp=no
-    _os=Android
     ;;
 
 haiku*)
@@ -1363,21 +1113,6 @@ AC_MSG_NOTICE([VCL platform uses X11: $using_x11])
 # End initial platform setup
 #
 # ===================================================================
-
-if test "$_os" = "Android" ; then
-    # Verify that the NDK and SDK options are proper
-    if test -z "$with_android_ndk"; then
-        AC_MSG_ERROR([the --with-android-ndk option is mandatory, unless it is available at external/android-ndk/.])
-    elif test ! -f "$ANDROID_NDK_DIR/meta/abis.json"; then
-        AC_MSG_ERROR([the --with-android-ndk option does not point to an Android NDK])
-    fi
-
-    if test -z "$ANDROID_SDK_DIR"; then
-        AC_MSG_ERROR([the --with-android-sdk option is mandatory, unless it is available at external/android-sdk-linux/.])
-    elif test ! -d "$ANDROID_SDK_DIR/platforms"; then
-        AC_MSG_ERROR([the --with-android-sdk option does not point to an Android SDK])
-    fi
-fi
 
 AC_SUBST(SDKDIRNAME)
 
@@ -1598,11 +1333,6 @@ AC_SUBST(EMSCRIPTEN_WORKERJS)
 # extensions are built anyway, just not integrated in the installer,
 # if you use --disable-extension-integration. Is that really the
 # case?
-
-AC_ARG_ENABLE(ios-simulator,
-    AS_HELP_STRING([--enable-ios-simulator],
-        [build for iOS simulator])
-)
 
 libo_FUZZ_ARG_ENABLE(extension-integration,
     AS_HELP_STRING([--disable-extension-integration],
@@ -3081,11 +2811,6 @@ AC_ARG_WITH(privacy-policy-url,
          fi]
 ,[with_privacy_policy_url="undefined"])
 
-AC_ARG_WITH(android-package-name,
-    AS_HELP_STRING([--with-android-package-name="org.libreoffice"],
-        [Set Android package name of the build.]),
-,)
-
 AC_ARG_WITH(compat-oowrappers,
     AS_HELP_STRING([--with-compat-oowrappers],
         [Install oo* wrappers in parallel with
@@ -3430,17 +3155,11 @@ if test "$enable_database_connectivity" != no; then
     BUILD_TYPE="$BUILD_TYPE DBCONNECTIVITY"
     AC_DEFINE(HAVE_FEATURE_DBCONNECTIVITY)
 else
-    if test "$_os" = iOS; then
-        AC_MSG_ERROR([Presumably can't disable DB connectivity on iOS.])
-    fi
     disable_database_connectivity_dependencies
 fi
 
 if test -z "$enable_extensions"; then
-    # For iOS and Android Viewer, disable extensions unless specifically overridden with --enable-extensions.
-    if test $_os != iOS && test $_os != Android -o "$ENABLE_ANDROID_LOK" = TRUE ; then
-        enable_extensions=yes
-    fi
+    enable_extensions=yes
 fi
 
 DISABLE_SCRIPTING=''
@@ -3452,8 +3171,8 @@ else
     SCPDEFS="$SCPDEFS -DDISABLE_SCRIPTING"
 fi
 
-if test $_os = iOS -o $_os = Android -o $_os = Emscripten; then
-    # Disable dynamic_loading always for iOS and Android
+if test $_os = Emscripten; then
+    # Disable dynamic loading on Emscripten.
     enable_dynamic_loading=no
 elif test -z "$enable_dynamic_loading"; then
     # Otherwise enable it unless specifically disabled
@@ -3774,51 +3493,6 @@ AC_SUBST(MACOSX_PROVISIONING_INFO)
 AC_SUBST(MACOSX_PROVISIONING_PROFILE)
 AC_SUBST(MACOSX_SDK_BUILD_VERSION)
 AC_SUBST(MACOSX_XCODE_BUILD_VERSION)
-
-dnl ===================================================================
-dnl Check iOS SDK and compiler
-dnl ===================================================================
-
-if test $_os = iOS; then
-    AC_MSG_CHECKING([what iOS SDK to use])
-
-    if test "$enable_ios_simulator" = "yes"; then
-        platformlc=iphonesimulator
-        versionmin=-mios-simulator-version-min=14.5
-    else
-        platformlc=iphoneos
-        versionmin=-miphoneos-version-min=14.5
-    fi
-
-    sysroot=`xcrun --sdk $platformlc --show-sdk-path`
-
-    if ! test -d "$sysroot"; then
-        AC_MSG_ERROR([Could not find iOS SDK $sysroot])
-    fi
-
-    AC_MSG_RESULT($sysroot)
-
-    stdlib="-stdlib=libc++"
-
-    AC_MSG_CHECKING([what C compiler to use])
-    CC="`xcrun -find clang`"
-    CC_BASE=`first_arg_basename "$CC"`
-    CC+=" -arch $host_cpu_for_clang -isysroot $sysroot $versionmin"
-    AC_MSG_RESULT([$CC])
-
-    AC_MSG_CHECKING([what C++ compiler to use])
-    CXX="`xcrun -find clang++`"
-    CXX_BASE=`first_arg_basename "$CXX"`
-    CXX+=" -arch $host_cpu_for_clang $stdlib -isysroot $sysroot $versionmin"
-    AC_MSG_RESULT([$CXX])
-
-    INSTALL_NAME_TOOL=`xcrun -find install_name_tool`
-    AR=`xcrun -find ar`
-    NM=`xcrun -find nm`
-    STRIP=`xcrun -find strip`
-    LIBTOOL=`xcrun -find libtool`
-    RANLIB=`xcrun -find ranlib`
-fi
 
 AC_MSG_CHECKING([whether to treat the installation as read-only])
 
@@ -5223,27 +4897,6 @@ darwin*)
     esac
     ;;
 
-ios*)
-    COM=GCC
-    OS=iOS
-    RTL_OS=iOS
-    P_SEP=:
-
-    case "$host_cpu" in
-    aarch64|arm64)
-        if test "$enable_ios_simulator" = "yes"; then
-            AC_MSG_ERROR([iOS simulator is only available in macOS not iOS])
-        fi
-        ;;
-    *)
-        AC_MSG_ERROR([Unsupported host_cpu $host_cpu for host_os $host_os])
-        ;;
-    esac
-    CPUNAME=AARCH64
-    RTL_ARCH=AARCH64
-    PLATFORMID=ios_arm64
-    ;;
-
 dragonfly*)
     COM=GCC
     OS=DRAGONFLY
@@ -5474,40 +5127,6 @@ linux-gnu*|linux-musl*)
         CPUNAME=LOONGARCH64
         RTL_ARCH=LOONGARCH64
         PLATFORMID=linux_loongarch64
-        ;;
-    *)
-        AC_MSG_ERROR([Unsupported host_cpu $host_cpu for host_os $host_os])
-        ;;
-    esac
-    ;;
-
-linux-android*)
-    COM=GCC
-    OS=ANDROID
-    RTL_OS=Android
-    P_SEP=:
-
-    case "$host_cpu" in
-
-    arm|armel)
-        CPUNAME=ARM
-        RTL_ARCH=ARM_EABI
-        PLATFORMID=android_arm_eabi
-        ;;
-    aarch64)
-        CPUNAME=AARCH64
-        RTL_ARCH=AARCH64
-        PLATFORMID=android_aarch64
-        ;;
-    i*86)
-        CPUNAME=INTEL
-        RTL_ARCH=x86
-        PLATFORMID=android_x86
-        ;;
-    x86_64)
-        CPUNAME=X86_64
-        RTL_ARCH=X86_64
-        PLATFORMID=android_x86_64
         ;;
     *)
         AC_MSG_ERROR([Unsupported host_cpu $host_cpu for host_os $host_os])
@@ -15368,25 +14987,6 @@ else
 fi
 AC_DEFINE_UNQUOTED(OOO_VENDOR,"$OOO_VENDOR")
 AC_SUBST(OOO_VENDOR)
-
-if test "$_os" = "Android" ; then
-    ANDROID_PACKAGE_NAME=
-    AC_MSG_CHECKING([for Android package name])
-    if test -z "$with_android_package_name" -o "$with_android_package_name" = "no"; then
-        if test -n "$ENABLE_DEBUG"; then
-            # Default to the package name that makes ndk-gdb happy.
-            ANDROID_PACKAGE_NAME="org.libreoffice"
-        else
-            ANDROID_PACKAGE_NAME="org.example.libreoffice"
-        fi
-
-        AC_MSG_RESULT([not set, using $ANDROID_PACKAGE_NAME])
-    else
-        ANDROID_PACKAGE_NAME="$with_android_package_name"
-        AC_MSG_RESULT([$ANDROID_PACKAGE_NAME])
-    fi
-    AC_SUBST(ANDROID_PACKAGE_NAME)
-fi
 
 AC_MSG_CHECKING([whether to install the compat oo* wrappers])
 if test "$with_compat_oowrappers" = "yes"; then

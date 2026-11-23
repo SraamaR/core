@@ -34,7 +34,6 @@ endif
 endif
 
 $(eval $(call gb_Module_add_targets,lingucomponent,\
-	$(if $(filter iOS,$(OS)),Library_MacOSXSpell) \
 	Library_numbertext \
 ))
 

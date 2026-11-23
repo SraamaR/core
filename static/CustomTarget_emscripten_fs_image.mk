@@ -1706,9 +1706,7 @@ gb_emscripten_fs_image_files += \
     $(INSTROOT)/$(LIBO_SHARE_PRESETS_FOLDER)/gallery/sg30.thm \
     $(INSTROOT)/$(LIBO_SHARE_RESOURCE_FOLDER)/common/fonts/opens___.ttf \
     $(INSTROOT)/$(LIBO_URE_ETC_FOLDER)/$(call gb_Helper_get_rcfile,uno) \
-    $(INSTROOT)/$(LIBO_URE_MISC_FOLDER)/services.rdb \
-    $(SRCDIR)/android/default-document/example.odt \
-	$(SRCDIR)/android/default-document/example_test.ods \
+    $(INSTROOT)/$(LIBO_URE_MISC_FOLDER)/services.rdb
 
 ifneq ($(ENABLE_WASM_STRIP_CHART),TRUE)
 gb_emscripten_fs_image_files += \
@@ -1806,6 +1804,8 @@ $(emscripten_fs_image_WORKDIR)/soffice.data.concat_lists: $(gb_emscripten_fs_ima
 	    $(shell cat $(call gb_Package_get_target,$(list)) >> $@.tmp))
 	$(shell mv $@.tmp $@)
 
+gb_emscripten_fs_image_examples := $(addprefix $(SRCDIR)/static/emscripten/examples/,example.odt example_test.ods)
+
 gb_emscripten_fs_image_all_files = $(gb_emscripten_fs_image_files) $(shell cat $(emscripten_fs_image_WORKDIR)/soffice.data.concat_lists)
 
 .PHONY: $(emscripten_fs_image_WORKDIR)/soffice.data.filelist
@@ -1813,10 +1813,12 @@ $(emscripten_fs_image_WORKDIR)/soffice.data.filelist: \
 		$(call gb_InstallModule_get_target,scp2/ooo) \
 		$(emscripten_fs_image_WORKDIR)/soffice.data.concat_lists \
 		$(gb_emscripten_fs_image_files) \
+		$(gb_emscripten_fs_image_examples) \
 		| $(emscripten_fs_image_WORKDIR)/.dir
 	$(file >$@,\
 	    $(subst @,@@,$(subst $(BUILDDIR)/,,$(filter $(BUILDDIR)%,$(gb_emscripten_fs_image_all_files)))) \
-	    $(foreach item,$(filter-out $(BUILDDIR)%,$(gb_emscripten_fs_image_all_files)),$(subst @,@@,$(item))@$(subst @,@@,$(subst $(SRCDIR)/,,$(item)))))
+	    $(foreach item,$(filter-out $(BUILDDIR)%,$(gb_emscripten_fs_image_all_files)),$(subst @,@@,$(item))@$(subst @,@@,$(subst $(SRCDIR)/,,$(item)))) \
+	    $(foreach item,$(gb_emscripten_fs_image_examples),$(subst @,@@,$(item))@android/default-document/$(notdir $(item))))
 
 # Unfortunately the file packager just allows a cmdline file list, but all paths are
 # relative to $(BUILDDIR), so we won't run out of cmdline space that fast...

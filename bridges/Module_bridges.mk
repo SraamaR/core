@@ -17,7 +17,7 @@ $(eval $(call gb_Module_add_targets,bridges,\
 		Library_java_uno \
 	) \
 	$(if $(filter ARM,$(CPUNAME)),\
-		$(if $(filter ANDROID LINUX,$(OS)),\
+		$(if $(filter LINUX,$(OS)),\
 			CustomTarget_gcc3_linux_arm) \
 	) \
 	$(if $(filter EMSCRIPTEN,$(OS)), \

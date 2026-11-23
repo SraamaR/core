@@ -40,10 +40,6 @@
 #include "uunxapi.hxx"
 #include "nlsupport.hxx"
 
-#ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
-#endif
-
 #if defined(MACOSX) || defined(IOS)
 #include <mach-o/dyld.h>
 

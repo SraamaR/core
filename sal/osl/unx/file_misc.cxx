@@ -45,10 +45,6 @@
 #include <algorithm>
 #include <new>
 
-#ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
-#endif
-
 /************************************************************************
  *   TODO
  *

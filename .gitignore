@@ -29,8 +29,6 @@
 
 # default location for external downloads
 /external/tarballs
-/external/android-ndk
-/external/android-sdk-linux
 
 # autoconf generated stuff
 /aclocal.m4
@@ -196,5 +194,3 @@ gdb.txt
 /solenv/lockfile/autoconf.h
 
 # Android builds
-/android/jniLibs/
-/android/obj/

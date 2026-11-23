@@ -96,12 +96,6 @@ bool isAlphaMaskBlendingEnabled() { return false; }
 
 #include <fstream>
 
-#ifdef SK_METAL
-#ifdef MACOSX
-#include <quartz/cgutils.h>
-#endif
-#endif
-
 namespace SkiaHelper
 {
 static OUString getCacheFolder()

@@ -36,10 +36,6 @@
 #include <fcntl.h>
 #include <utime.h>
 
-#ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
-#endif
-
 OString osl::OUStringToOString(std::u16string_view s)
 {
     return rtl::OUStringToOString(s, osl_getThreadTextEncoding());

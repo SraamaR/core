@@ -27,7 +27,6 @@ $(eval $(call gb_UnpackedTarball_add_patches,redland,\
 	external/redland/redland/redland-freebsd.patch.1 \
 	external/redland/redland/redland-msvc.patch.1 \
 	$(if $(filter-out WNT,$(OS)),external/redland/redland/redland-bundled-soname.patch.1) \
-	$(if $(filter ANDROID,$(OS)),external/redland/redland/redland-android.patch.1) \
 	$(if $(CROSS_COMPILING),external/redland/redland/redland-xcompile.patch.1) \
 	external/redland/redland/redland-format.patch.0 \
 	external/redland/redland/rpath.patch \

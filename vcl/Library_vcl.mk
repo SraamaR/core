@@ -21,11 +21,7 @@ $(eval $(call gb_Library_Library,vcl))
 
 $(eval $(call gb_Library_set_componentfile,vcl,vcl/vcl.common,services))
 
-ifeq ($(OS),ANDROID)
-$(eval $(call gb_Library_add_componentimpl,vcl,android))
-else ifeq ($(OS),iOS)
-$(eval $(call gb_Library_add_componentimpl,vcl,ios))
-else ifeq ($(DISABLE_GUI),TRUE)
+ifeq ($(DISABLE_GUI),TRUE)
 $(eval $(call gb_Library_add_componentimpl,vcl,headless))
 else
 $(eval $(call gb_Library_add_componentimpl,vcl,unx))
@@ -791,52 +787,6 @@ $(eval $(call gb_Library_add_libs,vcl,\
     -lbe \
 ))
 endif
-
-
-ifeq ($(OS),ANDROID)
-$(eval $(call gb_Library_add_libs,vcl,\
-    -llog \
-    -landroid \
-    -llo-bootstrap \
-))
-$(eval $(call gb_Library_add_exception_objects,vcl,\
-    vcl/android/androidinst \
-))
-endif
-
-
-ifeq ($(OS),iOS)
-$(eval $(call gb_Library_add_cxxflags,vcl,\
-    $(gb_OBJCXXFLAGS) \
-))
-$(eval $(call gb_Library_add_objcxxobjects,vcl,\
-    vcl/quartz/cgutils \
-))
-$(eval $(call gb_Library_add_exception_objects,vcl,\
-    vcl/ios/iosinst \
-    vcl/ios/dummies \
-    vcl/ios/salios \
-    vcl/ios/iOSTransferable \
-    vcl/ios/DataFlavorMapping \
-    vcl/ios/HtmlFmtFlt \
-    vcl/quartz/CoreTextFont \
-    vcl/quartz/CoreTextFontFace \
-    vcl/quartz/SystemFontList \
-    vcl/quartz/salbmp \
-    vcl/quartz/salgdi \
-    vcl/quartz/salgdicommon \
-    vcl/quartz/salvd \
-    vcl/quartz/utils \
-    vcl/quartz/AquaGraphicsBackend \
-    $(vcl_headless_code) \
-    vcl/unx/generic/app/gendata \
-))
-$(eval $(call gb_Library_use_system_darwin_frameworks,vcl,\
-    UIKit \
-    CoreFoundation \
-))
-endif
-
 
 
 # vim: set noet sw=4 ts=4:

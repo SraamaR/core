@@ -43,10 +43,6 @@
 #endif
 #endif
 
-#ifdef ANDROID
-#include <osl/detail/android-bootstrap.h>
-#endif
-
 #ifdef __EMSCRIPTEN__
 #include <initjsunoscripting.hxx>
 #include <osl/detail/emscripten-bootstrap.h>

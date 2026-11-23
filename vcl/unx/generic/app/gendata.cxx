@@ -17,10 +17,6 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#ifdef IOS
-#include <ios/iosinst.hxx>
-#endif
-
 #include <unx/gendata.hxx>
 
 #include <unx/font/fontmanager.hxx>

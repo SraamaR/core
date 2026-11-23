@@ -42,7 +42,6 @@ $(eval $(call gb_Module_add_moduledirs,libreoffice,\
 endif
 
 $(eval $(call gb_Module_add_moduledirs,libreoffice,\
-	android \
     $(if $(ENABLE_WASM_STRIP_BASIC_DRAW_MATH_IMPRESS),, \
 	animations \
     ) \

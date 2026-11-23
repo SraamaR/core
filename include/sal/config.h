@@ -24,9 +24,6 @@
 #ifndef INCLUDED_SAL_CONFIG_H
 #define INCLUDED_SAL_CONFIG_H
 
-#if defined LIBO_INTERNAL_ONLY && defined ANDROID && defined __cplusplus
-#include <android/compatibility.hxx>
-#endif
 
 #ifdef _WIN32
 #define SAL_W32
