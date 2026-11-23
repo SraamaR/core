@@ -20,6 +20,3 @@
 cat > /dev/null
 [[ "${PLATFORMID}" == "linux_x86_64" || "${PLATFORMID}" == "linux_aarch64" ]] && mark64="()(64bit)"
 echo "libfreetype.so.6${mark64}"
-if [[ "${XINERAMA_LINK}" == "dynamic" ]]; then
-  echo "libXinerama.so.1${mark64}"
-fi

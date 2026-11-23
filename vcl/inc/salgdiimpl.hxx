@@ -39,11 +39,8 @@ struct SalGradient;
 /**
 Implementation class for SalGraphics.
 
-This class allows having an implementation of drawing calls that is separate from SalGraphics,
-and SalGraphics can forward all such calls to SalGraphicsImpl. For example X11SalGraphics
-may internally use either Cairo-based X11CairoSalGraphicsImpl or Skia-based SkiaSalGraphicsImpl,
-and the latter may be used also by other SalGraphics implementations. All the functions
-here should be implementations of the relevant SalGraphics functions.
+SalGraphics can delegate drawing calls to a SalGraphicsImpl. Backends can share
+an implementation when they use the same drawing library.
 */
 class VCL_PLUGIN_PUBLIC SalGraphicsImpl
 {
@@ -69,9 +66,6 @@ public:
     // All the functions are implementations of functions from the SalGraphics class,
     // so see the SalGraphics class for documentation (both uppercase and lowercase
     // function variants).
-
-    /// Only used by the X11SkiaSalGraphicsImpl backend
-    virtual void UpdateX11GeometryProvider() {}
 
     virtual void DeInit() {}
 

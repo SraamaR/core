@@ -447,7 +447,6 @@ $(eval $(call gb_Helper_register_plugins_for_install,OOOLIBS,ooo, \
     cui \
     icg \
     sdui \
-    $(if $(ENABLE_GEN),vclplug_gen) \
 ))
 
 $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,postgresqlsdbc, \

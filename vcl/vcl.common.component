@@ -50,11 +50,6 @@
     <service name="com.sun.star.datatransfer.clipboard.SystemClipboard"/>
     <optional/>
   </implementation>
-  <implementation name="com.sun.star.datatransfer.X11ClipboardSupport"
-      constructor="vcl_SystemClipboard_get_implementation">
-    <service name="com.sun.star.datatransfer.clipboard.SystemClipboard"/>
-    <optional/>
-  </implementation>
   <implementation name="com.sun.star.frame.VCLSessionManagerClient"
       constructor="com_sun_star_frame_VCLSessionManagerClient_get_implementation">
     <service name="com.sun.star.frame.SessionManagerClient"/>

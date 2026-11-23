@@ -22,12 +22,6 @@
 #include <sal/config.h>
 #include <sal/types.h>
 
-#if defined VCLPLUG_GEN_IMPLEMENTATION
-#define VCLPLUG_GEN_PUBLIC SAL_DLLPUBLIC_EXPORT
-#else
-#define VCLPLUG_GEN_PUBLIC SAL_DLLPUBLIC_IMPORT
-#endif
-
 #if defined VCLPLUG_GTK_IMPLEMENTATION
 #define VCLPLUG_GTK_PUBLIC SAL_DLLPUBLIC_EXPORT
 #else

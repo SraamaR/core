@@ -32,6 +32,7 @@
 #include <config_vclplug.h>
 
 #include <cstdio>
+#include <initializer_list>
 #include <desktop/crashreport.hxx>
 #include <rtl/bootstrap.hxx>
 #include <rtl/process.h>
@@ -186,8 +187,8 @@ std::vector<OUString> autodetect_plugin_list()
 #if ENABLE_GTK3
     aPlugins.push_back(u"gtk3"_ustr);
 #endif
-#if ENABLE_GEN
-    aPlugins.push_back(u"gen"_ustr);
+#if ENABLE_GTK4
+    aPlugins.push_back(u"gtk4"_ustr);
 #endif
 
     return aPlugins;
@@ -222,6 +223,12 @@ SalInstance *CreateSalInstance()
     OUString aUsePlugin;
     rtl::Bootstrap::get(u"SAL_USE_VCLPLUGIN"_ustr, aUsePlugin);
     SAL_INFO_IF(!aUsePlugin.isEmpty(), "vcl.plugadapt", "Requested VCL plugin: " << aUsePlugin);
+
+    if (aUsePlugin == "gen")
+    {
+        SAL_WARN("vcl.plugadapt", "The gen plugin has been removed");
+        aUsePlugin.clear();
+    }
 
     if (Application::IsBitmapRendering() || (aUsePlugin.isEmpty() && IsHeadlessModeRequested()))
         aUsePlugin = "svp";
@@ -259,18 +266,18 @@ SalInstance *CreateSalInstance()
 #endif
 
     // fallback, try everything
-    static constexpr OUString aPlugins[] = {
+    const std::initializer_list<OUString> aPlugins = {
 #if ENABLE_GTK3
         u"gtk3"_ustr,
+#endif
+#if ENABLE_GTK4
+        u"gtk4"_ustr,
 #endif
 #if ENABLE_KF5
         u"kf5"_ustr,
 #endif
 #if ENABLE_GTK3_KDE5
         u"gtk3_kde5"_ustr,
-#endif
-#if ENABLE_GEN
-        u"gen"_ustr,
 #endif
 #if ENABLE_QT5
         u"qt5"_ustr,

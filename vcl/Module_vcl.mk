@@ -69,7 +69,6 @@ $(eval $(call gb_Module_add_l10n_targets,vcl,\
 
 ifeq ($(USING_UNIX_DESKTOP),TRUE)
 $(eval $(call gb_Module_add_targets,vcl,\
-    $(if $(ENABLE_GEN),Library_vclplug_gen) \
     Package_fontunxppds \
     Package_fontunxpsprint \
 ))
@@ -269,12 +268,6 @@ endif
 $(eval $(call gb_Module_add_screenshot_targets,vcl,\
     CppunitTest_vcl_dialogs_test \
 ))
-
-ifneq ($(DISPLAY),)
-$(eval $(call gb_Module_add_slowcheck_targets,vcl,\
-    CppunitTest_vcl_gen \
-))
-endif
 
 ifneq (,$(filter PDFIUM,$(BUILD_TYPE)))
 $(eval $(call gb_Module_add_slowcheck_targets,vcl,\

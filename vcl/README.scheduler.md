@@ -190,9 +190,6 @@ to tell, when these became ready. I've added a workaround idea to the TODO
 list. FWIW: **Qt** runs just a single timer source in the glib main context,
 basically the same we're doing with the LO scheduler as a system event.
 
-The gen **X11** backend has some levels of redirection, but needs quite some work
-to get this fixed.
-
 ### General: non-main thread yield
 
 Yielding from a non-main thread must not wait in the main thread, as this
@@ -425,13 +422,6 @@ running new higher events, which should be sufficient for most stuff.
 
 This also touches user event processing, which currently runs as a high
 priority idle in the event loop.
-
-### Drop nMaxEvents from gen (X11) backend
-
-A few layers of indirection make this code hard to follow. The `SalXLib::Yield`
-and `SalX11Display::Yield` architecture makes it impossible to process just the
-current events. This really needs a refactoring and rearchitecture step, which
-will also affect the Gtk+ and KDE backend for the user event handling.
 
 ### Merge TaskStopwatch functionality into the Scheduler
 

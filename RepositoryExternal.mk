@@ -3634,35 +3634,6 @@ gb_ExternalProject__use_libeot :=
 
 endif # ENABLE_EOT
 
-### X11 stuff ###
-
-ifeq ($(USING_X11), TRUE)
-
-define gb_LinkTarget__use_Xrandr
-$(call gb_LinkTarget_set_include,$(1),\
-	$$(INCLUDE) \
-	$(XRANDR_CFLAGS) \
-)
-
-$(call gb_LinkTarget_add_libs,$(1),\
-	$(XRANDR_LIBS) \
-)
-endef
-
-define gb_LinkTarget__use_Xrender
-$(call gb_LinkTarget_set_include,$(1),\
-	$$(INCLUDE) \
-	$(XRENDER_CFLAGS) \
-)
-
-$(call gb_LinkTarget_add_libs,$(1),\
-	$(XRENDER_LIBS) \
-)
-endef
-
-endif # USING_X11
-
-
 gb_ExternalProject__use_nss3:=
 
 

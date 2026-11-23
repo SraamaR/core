@@ -1025,7 +1025,6 @@ fi
 test "${test_cpdb+set}" = set || test_cpdb="$using_unix_desktop"
 test "${test_cups+set}" = set || test_cups="$using_unix_desktop"
 test "${test_dbus+set}" = set || test_dbus="$using_unix_desktop"
-test "${test_gen+set}" = set || test_gen="$using_x11"
 test "${test_gstreamer_1_0+set}" = set || test_gstreamer_1_0="$using_unix_desktop"
 test "${test_gtk3+set}" = set || test_gtk3="$using_unix_desktop"
 test "${test_gtk4+set}" = set || test_gtk4="$using_unix_desktop"
@@ -1033,8 +1032,6 @@ test "${test_kf5+set}" = set || test_kf5="$using_unix_desktop"
 test "${test_kf6+set}" = set || test_kf6="$using_unix_desktop"
 # don't handle test_qt5, so it can disable test_kf5 later
 test "${test_qt6+set}" = set || test_qt6="$using_unix_desktop"
-test "${test_randr+set}" = set || test_randr="$using_x11"
-test "${test_xrender+set}" = set || test_xrender="$using_x11"
 test "${using_headless_plugin+set}" = set || using_headless_plugin="$using_freetype_fontconfig"
 
 test "${test_gtk3_kde5+set}" != set -a "$test_kf5" = yes -a "$test_gtk3" = yes && test_gtk3_kde5="yes"
@@ -1066,14 +1063,6 @@ disable_unix_desktop_tests()
     test_kf6=no
     test_qt5=no
     test_qt6=no
-}
-
-# Keep in sync with the above $using_x11 depending test default list
-disable_x11_tests()
-{
-    test_gen=no
-    test_randr=no
-    test_xrender=no
 }
 
 test "$using_unix_desktop" = yes && USING_UNIX_DESKTOP=TRUE
@@ -1693,12 +1682,6 @@ AC_ARG_ENABLE(gtk3_kde5,
          platforms where Gtk3, Qt5 and Plasma is available.]),
 ,)
 
-AC_ARG_ENABLE(gen,
-    AS_HELP_STRING([--enable-gen],
-        [To select the gen backend in case of --disable-dynamic-loading.
-         Per default auto-enabled when X11 is used.]),
-,test "${test_gen}" = no -o "${enable_gen+set}" = set || enable_gen=yes)
-
 AC_ARG_ENABLE(headless,
     AS_HELP_STRING([--enable-headless],
         [Enable headless plugin (svp) even on macOS or Windows.]),
@@ -1713,11 +1696,6 @@ AC_ARG_ENABLE(gui,
     AS_HELP_STRING([--disable-gui],
         [Disable use of X11 or Wayland to reduce dependencies (e.g. for building LibreOfficeKit).]),
 ,enable_gui=yes)
-
-libo_FUZZ_ARG_ENABLE(randr,
-    AS_HELP_STRING([--disable-randr],
-        [Disable RandR support in the vcl project.]),
-,test "${enable_randr+set}" = set || enable_randr=yes)
 
 libo_FUZZ_ARG_ENABLE(gstreamer-1-0,
     AS_HELP_STRING([--disable-gstreamer-1-0],
@@ -3112,7 +3090,6 @@ if test "$enable_wasm_strip" = "yes"; then
     enable_online_update=no
     enable_opencl=no
     enable_pdfimport=no
-    enable_randr=no
     enable_report_builder=no
     enable_scripting=no
     enable_sdremote=no
@@ -5386,10 +5363,6 @@ if test "$with_x" = "no"; then
     USING_X11=
 fi
 
-if test -z "$USING_X11" -a "$enable_qt5" = "yes" -a "$enable_gen" = "yes"; then
-    AC_MSG_ERROR([Can't select gen VCL plugin, if --without-x is used!])
-fi
-
 if test -z "$USING_UNIX_DESKTOP" -a "$USING_X11" = TRUE; then
     AC_MSG_ERROR([Platform doesn't support a Unix desktop (\$using_unix_desktop), but \$USING_X11 is set!])
 fi
@@ -5397,8 +5370,6 @@ fi
 if test "$using_x11" = yes; then
     if test "$USING_X11" = TRUE; then
         AC_DEFINE(USING_X11)
-    else
-        disable_x11_tests
     fi
 else
     if test "$USING_X11" = TRUE; then
@@ -11261,73 +11232,10 @@ else
     x_libraries="no_x_libraries"
 fi
 
-if test "$USING_X11" = TRUE; then
-    dnl ===================================================================
-    dnl Check for extension headers
-    dnl ===================================================================
-    AC_CHECK_HEADERS(X11/extensions/shape.h,[],[AC_MSG_ERROR([libXext headers not found])],
-     [#include <X11/extensions/shape.h>])
-
-    # vcl needs ICE and SM
-    AC_CHECK_HEADERS(X11/ICE/ICElib.h,[],[AC_MSG_ERROR([libICE headers not found])])
-    AC_CHECK_LIB([ICE], [IceConnectionNumber], [:],
-        [AC_MSG_ERROR(ICE library not found)])
-    AC_CHECK_HEADERS(X11/SM/SMlib.h,[],[AC_MSG_ERROR([libSM headers not found])])
-    AC_CHECK_LIB([SM], [SmcOpenConnection], [:],
-        [AC_MSG_ERROR(SM library not found)])
-fi
-
 if test "$USING_UNIX_DESKTOP" = TRUE -a "$ENABLE_JAVA" != ""; then
     # bean/native/unix/com_sun_star_comp_beans_LocalOfficeWindow.c needs Xt
     AC_CHECK_HEADERS(X11/Intrinsic.h,[],[AC_MSG_ERROR([libXt headers not found])])
 fi
-
-dnl ===================================================================
-dnl Check for system Xrender
-dnl ===================================================================
-AC_MSG_CHECKING([whether to use Xrender])
-if test "$USING_X11" = TRUE -a  "$test_xrender" = "yes"; then
-    AC_MSG_RESULT([yes])
-    PKG_CHECK_MODULES(XRENDER, xrender)
-    XRENDER_CFLAGS=$(printf '%s' "$XRENDER_CFLAGS" | sed -e "s/-I/${ISYSTEM?}/g")
-    FilterLibs "${XRENDER_LIBS}"
-    XRENDER_LIBS="${filteredlibs}"
-    AC_CHECK_LIB([Xrender], [XRenderQueryVersion], [:],
-      [AC_MSG_ERROR(libXrender not found or functional)], [])
-    AC_CHECK_HEADER(X11/extensions/Xrender.h, [],
-      [AC_MSG_ERROR(Xrender not found. install X)], [])
-else
-    AC_MSG_RESULT([no])
-fi
-AC_SUBST(XRENDER_CFLAGS)
-AC_SUBST(XRENDER_LIBS)
-
-dnl ===================================================================
-dnl Check for XRandr
-dnl ===================================================================
-AC_MSG_CHECKING([whether to enable RandR support])
-if test "$USING_X11" = TRUE -a "$test_randr" = "yes" -a \( "$enable_randr" = "yes" -o "$enable_randr" = "TRUE" \); then
-    AC_MSG_RESULT([yes])
-    PKG_CHECK_MODULES(XRANDR, xrandr >= 1.2, ENABLE_RANDR="TRUE", ENABLE_RANDR="")
-    if test "$ENABLE_RANDR" != "TRUE"; then
-        AC_CHECK_HEADER(X11/extensions/Xrandr.h, [],
-                    [AC_MSG_ERROR([X11/extensions/Xrandr.h could not be found. X11 dev missing?])], [])
-        XRANDR_CFLAGS=" "
-        AC_CHECK_LIB([Xrandr], [XRRQueryExtension], [:],
-          [ AC_MSG_ERROR(libXrandr not found or functional) ], [])
-        XRANDR_LIBS="-lXrandr "
-        ENABLE_RANDR="TRUE"
-    fi
-    XRANDR_CFLAGS=$(printf '%s' "$XRANDR_CFLAGS" | sed -e "s/-I/${ISYSTEM?}/g")
-    FilterLibs "${XRANDR_LIBS}"
-    XRANDR_LIBS="${filteredlibs}"
-else
-    ENABLE_RANDR=""
-    AC_MSG_RESULT([no])
-fi
-AC_SUBST(XRANDR_CFLAGS)
-AC_SUBST(XRANDR_LIBS)
-AC_SUBST(ENABLE_RANDR)
 
 if test -z "$with_webdav"; then
     with_webdav=$test_webdav
@@ -12020,7 +11928,6 @@ dnl Show which vclplugs will be built.
 dnl ===================================================================
 R=""
 
-libo_ENABLE_VCLPLUG([gen])
 libo_ENABLE_VCLPLUG([gtk3])
 libo_ENABLE_VCLPLUG([gtk3_kde5])
 libo_ENABLE_VCLPLUG([gtk4])
@@ -12702,7 +12609,6 @@ if test \( "$ENABLE_SKIA" = TRUE -o "$ENABLE_PDFIUM" = TRUE \) -a "$COM_IS_CLANG
     fi
     if test -z "$LO_CLANG_CC" -o -z "$LO_CLANG_CXX"; then
         # Skia is the default on Windows and Mac, so hard-require Clang.
-        # Elsewhere it's used just by the 'gen' VCL backend which is rarely used.
         if test "$_os" = "WINNT" -o "$_os" = "Darwin"; then
             AC_MSG_ERROR([Clang compiler not found. The Skia library needs to be built using Clang, or use --disable-skia.])
         else
@@ -14139,70 +14045,6 @@ AC_SUBST(ENABLE_EXTENSION_UPDATE)
 AC_SUBST(ENABLE_SILENT_MSI)
 AC_SUBST(ENABLE_WIX)
 
-AC_MSG_CHECKING([whether and how to use Xinerama])
-if test "$USING_X11" = TRUE; then
-    if test "$x_libraries" = "default_x_libraries"; then
-        XINERAMALIB=`$PKG_CONFIG --variable=libdir xinerama`
-        if test "x$XINERAMALIB" = x; then
-           XINERAMALIB="/usr/lib"
-        fi
-    else
-        XINERAMALIB="$x_libraries"
-    fi
-    if test -e "$XINERAMALIB/libXinerama.so" -a -e "$XINERAMALIB/libXinerama.a"; then
-        # we have both versions, let the user decide but use the dynamic one
-        # per default
-        USE_XINERAMA=TRUE
-        if test -z "$with_static_xinerama" -o -n "$with_system_libs"; then
-            XINERAMA_LINK=dynamic
-        else
-            XINERAMA_LINK=static
-        fi
-    elif test -e "$XINERAMALIB/libXinerama.so" -a ! -e "$XINERAMALIB/libXinerama.a"; then
-        # we have only the dynamic version
-        USE_XINERAMA=TRUE
-        XINERAMA_LINK=dynamic
-    elif test -e "$XINERAMALIB/libXinerama.a"; then
-        # static version
-        if echo $host_cpu | $GREP -E 'i[[3456]]86' 2>/dev/null >/dev/null; then
-            USE_XINERAMA=TRUE
-            XINERAMA_LINK=static
-        else
-            USE_XINERAMA=
-            XINERAMA_LINK=none
-        fi
-    else
-        # no Xinerama
-        USE_XINERAMA=
-        XINERAMA_LINK=none
-    fi
-    if test "$USE_XINERAMA" = "TRUE"; then
-        AC_MSG_RESULT([yes, with $XINERAMA_LINK linking])
-        AC_CHECK_HEADER(X11/extensions/Xinerama.h, [],
-            [AC_MSG_ERROR(Xinerama header not found.)], [])
-        XEXTLIBS=`$PKG_CONFIG --variable=libs xext`
-        if test "x$XEXTLIB" = x; then
-           XEXTLIBS="-L$XLIB -L$XINERAMALIB -lXext"
-        fi
-        XINERAMA_EXTRA_LIBS="$XEXTLIBS"
-        if test "$_os" = "FreeBSD"; then
-            XINERAMA_EXTRA_LIBS="$XINERAMA_EXTRA_LIBS -lXt"
-        fi
-        if test "$_os" = "Linux"; then
-            XINERAMA_EXTRA_LIBS="$XINERAMA_EXTRA_LIBS -ldl"
-        fi
-        AC_CHECK_LIB([Xinerama], [XineramaIsActive], [:],
-            [AC_MSG_ERROR(Xinerama not functional?)], [$XINERAMA_EXTRA_LIBS])
-    else
-        AC_MSG_ERROR([libXinerama not found or wrong architecture.])
-    fi
-else
-    USE_XINERAMA=
-    XINERAMA_LINK=none
-    AC_MSG_RESULT([no])
-fi
-AC_SUBST(XINERAMA_LINK)
-
 AC_MSG_CHECKING([whether to use non-standard RGBA32 cairo pixel order])
 if test -z "$enable_cairo_rgba" -a "$_os" = "Android"; then
     enable_cairo_rgba=yes
@@ -14233,19 +14075,6 @@ if test "$test_cairo" = "yes"; then
         CAIRO_CFLAGS=$(printf '%s' "$CAIRO_CFLAGS" | sed -e "s/-I/${ISYSTEM?}/g")
         FilterLibs "${CAIRO_LIBS}"
         CAIRO_LIBS="${filteredlibs}"
-
-        if test "$test_xrender" = "yes"; then
-            AC_MSG_CHECKING([whether Xrender.h defines PictStandardA8])
-            AC_LANG_PUSH([C])
-            AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <X11/extensions/Xrender.h>]],[[
-#ifdef PictStandardA8
-#else
-      return fail;
-#endif
-]])],[AC_MSG_RESULT([yes])],[AC_MSG_ERROR([no, X headers too old.])])
-
-            AC_LANG_POP([C])
-        fi
     else
         AC_MSG_RESULT([no])
         BUILD_TYPE="$BUILD_TYPE CAIRO"

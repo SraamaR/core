@@ -88,7 +88,7 @@ IMPL_LINK_NOARG(FormFieldButton, FieldPopupModeEndHdl, weld::Popover&, void)
 {
     DestroyPopup();
     m_rFieldmark.Invalidate();
-    // Hide the button here and make it visible later, to make transparent background work with SAL_USE_VCLPLUGIN=gen
+    // Hide the button here and make it visible later, so the transparent background paints correctly
     Show(false);
     Invalidate();
 }

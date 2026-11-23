@@ -4,8 +4,8 @@ See external/skia for info on the library itself.
 Environment variables:
 ======================
 
-See README.vars in the toplevel vcl/ directory. Note that many backends do not
-use Skia. E.g. on Linux it is necessary to also use SAL_USE_VCLPLUGIN=gen .
+See README.vars in the top-level vcl/ directory. The GTK and Qt backends on
+linuxoffice do not use Skia for VCL window rendering.
 
 There are also GUI options for controlling whether Skia is enabled.
 
@@ -46,19 +46,6 @@ and match it with the responsible operation (run LO with 'SAL_LOG=+INFO.vcl.skia
     SAL_DEBUG("CNT:" << cnt);
     if(cnt > 4000) // skip some initial drawing operations
         dump(buf);
-
-
-Testing:
-========
-
-Currently unittests always use the 'headless' VCL backend. Use something like the following
-to run VCL unittests with Skia (and possibly skip slowcheck):
-
-SAL_SKIA=raster SAL_ENABLESKIA=1 SAL_USE_VCLPLUGIN=gen make vcl.build vcl.unitcheck vcl.slowcheck
-
-You can also use 'visualbackendtest' to visually check some operations. Use something like:
-
-SAL_SKIA=raster SAL_ENABLESKIA=1 SAL_USE_VCLPLUGIN=gen [srcdir]/bin/run visualbackendtest
 
 
 Thread safety:
